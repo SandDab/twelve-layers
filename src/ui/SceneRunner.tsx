@@ -16,6 +16,7 @@ export function SceneRunner({ scene, onComplete }: SceneRunnerProps) {
   const setSceneNode = useGameStore((s) => s.setSceneNode);
   const completeScene = useGameStore((s) => s.completeScene);
   const applyChoiceEffects = useGameStore((s) => s.applyChoiceEffects);
+  const checkKanzashiAward = useGameStore((s) => s.checkKanzashiAward);
 
   const currentNodeId = progress?.currentNode ?? scene.startNode;
   const node = getSceneNode(scene, currentNodeId);
@@ -31,9 +32,12 @@ export function SceneRunner({ scene, onComplete }: SceneRunnerProps) {
     );
   }
 
-  function goto(nodeId: string, effects: Choice['effects'] = []) {
+  function goto(nodeId: string, effects: Choice['effects'] = [], themeTags?: Choice['themeTags']) {
     if (effects.length > 0) {
       applyChoiceEffects(effects);
+    }
+    if (themeTags && themeTags.length > 0) {
+      checkKanzashiAward(themeTags);
     }
     const target = getSceneNode(scene, nodeId);
     if (isSceneEnd(target)) {
@@ -67,7 +71,7 @@ export function SceneRunner({ scene, onComplete }: SceneRunnerProps) {
                   key={i}
                   className={`btn choice-card${passed ? '' : ' choice-card-failed'}`}
                   disabled={!passed}
-                  onClick={() => goto(choice.goto, choice.effects)}
+                  onClick={() => goto(choice.goto, choice.effects, choice.themeTags)}
                 >
                   {choice.text}
                 </button>

@@ -9,6 +9,7 @@ import {
   computeTrainGain,
   TRAIN_COMPOSURE_COST,
 } from '../engine/household';
+import { applyKanzashiAttrBonuses, checkKanzashiAward } from '../engine/kanzashi';
 import { applyClass } from '../engine/newGame';
 import { consumeRipple } from '../engine/ripples';
 import { clearSave, loadSave, writeSave } from '../engine/save';
@@ -20,6 +21,7 @@ import {
   type RippleEntry,
   type Save,
   type StaffRole,
+  type ThemeTag,
 } from '../engine/types';
 
 export interface GameState extends Save {
@@ -33,6 +35,7 @@ export interface GameState extends Save {
   addRipple: (ripple: RippleEntry) => void;
   consumeRipple: (ripple: RippleEntry) => void;
   applyChoiceEffects: (effects: Effect[]) => void;
+  checkKanzashiAward: (themeTags?: ThemeTag[]) => void;
   setSceneNode: (sceneId: string, nodeId: string) => void;
   completeScene: (sceneId: string) => void;
   hireStaff: (role: StaffRole) => void;
@@ -40,6 +43,7 @@ export interface GameState extends Save {
   rest: () => void;
   buyRobe: (robeId: string) => void;
   equipRobe: (robeId: string | null) => void;
+  equipKanzashi: (kanzashiId: string | null) => void;
   chooseClass: (classId: ClassId) => void;
   resetSave: () => void;
 }
@@ -62,6 +66,10 @@ const SAVE_FIELDS = [
   'staff',
   'wardrobe',
   'actionsRemaining',
+  'kanzashiOwned',
+  'kanzashiEquipped',
+  'kanzashiAssignments',
+  'kanzashiSeed',
   'debug',
 ] as const;
 
@@ -126,7 +134,7 @@ export const useGameStore = create<GameState>((set) => ({
 
   setComposure: (value) =>
     set((state) => {
-      const cap = computeComposureCap(state.classId);
+      const cap = computeComposureCap(state.classId, state.kanzashiEquipped);
       const next: Save = {
         ...extractSave(state),
         resources: { ...state.resources, composure: Math.max(0, Math.min(cap, value)) },
@@ -162,6 +170,15 @@ export const useGameStore = create<GameState>((set) => ({
   applyChoiceEffects: (effects) =>
     set((state) => {
       const next = applyEffects(effects, extractSave(state));
+      writeSave(next);
+      return next;
+    }),
+
+  checkKanzashiAward: (themeTags) =>
+    set((state) => {
+      const save = extractSave(state);
+      const next = checkKanzashiAward(save, themeTags);
+      if (next === save) return state;
       writeSave(next);
       return next;
     }),
@@ -229,7 +246,7 @@ export const useGameStore = create<GameState>((set) => ({
       if (state.actionsRemaining <= 0) return state;
       const save = extractSave(state);
       const gain = computeRestGain(save.staff);
-      const cap = computeComposureCap(save.classId);
+      const cap = computeComposureCap(save.classId, save.kanzashiEquipped);
       const next: Save = {
         ...save,
         resources: { ...save.resources, composure: Math.min(cap, save.resources.composure + gain) },
@@ -262,6 +279,30 @@ export const useGameStore = create<GameState>((set) => ({
         ...extractSave(state),
         wardrobe: { ...state.wardrobe, equipped: robeId },
       };
+      writeSave(next);
+      return next;
+    }),
+
+  equipKanzashi: (kanzashiId) =>
+    set((state) => {
+      if (kanzashiId !== null && !state.kanzashiOwned.includes(kanzashiId)) return state;
+      if (kanzashiId === state.kanzashiEquipped) return state;
+
+      let next = extractSave(state);
+      if (next.kanzashiEquipped) {
+        next = applyKanzashiAttrBonuses(next, next.kanzashiEquipped, -1);
+      }
+      if (kanzashiId) {
+        next = applyKanzashiAttrBonuses(next, kanzashiId, 1);
+      }
+      next = { ...next, kanzashiEquipped: kanzashiId };
+
+      const cap = computeComposureCap(next.classId, next.kanzashiEquipped);
+      next = {
+        ...next,
+        resources: { ...next.resources, composure: Math.min(cap, next.resources.composure) },
+      };
+
       writeSave(next);
       return next;
     }),

@@ -66,4 +66,32 @@ describe('gossip queue', () => {
     const save = { ...createInitialSave(), year: 1, month: 1 };
     expect(resolveDueGossip(save)).toEqual(save);
   });
+
+  it("halves wore_offseason_robe gossip impact while Kōbai is equipped", () => {
+    const save = {
+      ...createInitialSave(),
+      year: 1,
+      month: 6,
+      kanzashiEquipped: 'kobai',
+      pendingGossip: [
+        { triggerYear: 1, triggerMonth: 6, tag: 'wore_offseason_robe', factionDeltas: { rivalHouses: -2 } },
+      ],
+    };
+
+    expect(resolveDueGossip(save).factionReputation.rivalHouses).toBe(-1);
+  });
+
+  it('multiplies positive rivalHouses gossip gains by 1.5 while Fuji is equipped', () => {
+    const save = {
+      ...createInitialSave(),
+      year: 1,
+      month: 6,
+      kanzashiEquipped: 'fuji',
+      pendingGossip: [
+        { triggerYear: 1, triggerMonth: 6, tag: 'praised_old_houses', factionDeltas: { rivalHouses: 2 } },
+      ],
+    };
+
+    expect(resolveDueGossip(save).factionReputation.rivalHouses).toBe(3);
+  });
 });

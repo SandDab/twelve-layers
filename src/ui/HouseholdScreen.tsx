@@ -1,3 +1,4 @@
+import { KANZASHI, KANZASHI_IDS } from '../content/kanzashi';
 import { ROBES } from '../content/robes';
 import { STAFF_DEFINITIONS } from '../content/staff';
 import { getTokimekiTier } from '../content/tokimekiTiers';
@@ -27,6 +28,9 @@ export function HouseholdScreen() {
   const tokimeki = useGameStore((s) => s.tokimeki);
   const staff = useGameStore((s) => s.staff);
   const wardrobe = useGameStore((s) => s.wardrobe);
+  const kanzashiOwned = useGameStore((s) => s.kanzashiOwned);
+  const kanzashiEquipped = useGameStore((s) => s.kanzashiEquipped);
+  const equipKanzashi = useGameStore((s) => s.equipKanzashi);
   const actionsRemaining = useGameStore((s) => s.actionsRemaining);
   const tickMonth = useGameStore((s) => s.tickMonth);
   const hireStaff = useGameStore((s) => s.hireStaff);
@@ -158,6 +162,35 @@ export function HouseholdScreen() {
           );
         })}
       </section>
+
+      {kanzashiOwned.length > 0 && (
+        <section className="card">
+          <h2 style={{ marginTop: 0 }}>Kanzashi</h2>
+          {KANZASHI_IDS.filter((id) => kanzashiOwned.includes(id)).map((id) => {
+            const def = KANZASHI[id];
+            const equipped = kanzashiEquipped === id;
+            return (
+              <div className="list-row" key={id}>
+                <div className="list-row-info">
+                  <span className="list-row-title">{def.name}</span>
+                  <span className="list-row-desc">
+                    {def.color} · {def.passiveSummary}
+                  </span>
+                </div>
+                {equipped ? (
+                  <button className="btn" onClick={() => equipKanzashi(null)}>
+                    Unequip
+                  </button>
+                ) : (
+                  <button className="btn" onClick={() => equipKanzashi(id)}>
+                    Equip
+                  </button>
+                )}
+              </div>
+            );
+          })}
+        </section>
+      )}
 
       <button className="btn btn-accent" style={{ width: '100%' }} onClick={tickMonth}>
         End Month

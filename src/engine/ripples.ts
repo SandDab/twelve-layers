@@ -1,3 +1,4 @@
+import { KANZASHI, type KanzashiId } from '../content/kanzashi';
 import type { GossipEntry, RippleEntry, Save } from './types';
 
 /** Ripples whose trigger year/month matches the save's current calendar position. */
@@ -22,16 +23,34 @@ export function getDueGossip(save: Save): GossipEntry[] {
 /**
  * Apply due gossip to faction reputation and remove it from the
  * pending queue. Pure — returns the updated save.
+ *
+ * An equipped kanzashi can dampen or amplify the result: Kōbai halves
+ * the faction impact of "wore_offseason_robe" gossip, and Fuji
+ * multiplies positive rivalHouses (old-houses) gains by 1.5.
  */
 export function resolveDueGossip(save: Save): Save {
   const due = getDueGossip(save);
   if (due.length === 0) return save;
 
+  const passives = KANZASHI[save.kanzashiEquipped as KanzashiId]?.passives ?? [];
+
   const factionReputation = { ...save.factionReputation };
   for (const gossip of due) {
+    const tagMult =
+      passives.find((p): p is Extract<typeof p, { kind: 'gossipMultiplier' }> =>
+        p.kind === 'gossipMultiplier' && p.tag === gossip.tag,
+      )?.mult ?? 1;
     for (const [faction, delta] of Object.entries(gossip.factionDeltas)) {
       const key = faction as keyof typeof factionReputation;
-      factionReputation[key] = factionReputation[key] + (delta ?? 0);
+      let applied = (delta ?? 0) * tagMult;
+      if (applied > 0) {
+        const repMult =
+          passives.find((p): p is Extract<typeof p, { kind: 'factionRepMult' }> =>
+            p.kind === 'factionRepMult' && p.faction === key,
+          )?.mult ?? 1;
+        applied *= repMult;
+      }
+      factionReputation[key] = factionReputation[key] + Math.round(applied);
     }
   }
 

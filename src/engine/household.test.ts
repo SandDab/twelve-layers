@@ -51,6 +51,11 @@ describe('computeIncome', () => {
     const save = createInitialSave();
     expect(computeIncome(save.staff, save.tokimeki, 'old_name')).toBe(15); // 20 * 0.75
   });
+
+  it("adds Sango's flat Koku stipend while equipped", () => {
+    const save = createInitialSave();
+    expect(computeIncome(save.staff, save.tokimeki, null, 'sango')).toBe(23); // 20 + 3
+  });
 });
 
 describe('computeFreeActions / Tokimeki tiers', () => {

@@ -1,4 +1,5 @@
 import { CLASSES } from '../content/classes';
+import { KANZASHI, type KanzashiId } from '../content/kanzashi';
 import { getRobe } from '../content/robes';
 import { STAFF_DEFINITIONS } from '../content/staff';
 import { getTokimekiTier } from '../content/tokimekiTiers';
@@ -21,17 +22,24 @@ export function seasonOfMonth(month: number): 1 | 2 | 3 | 4 {
   return (Math.floor((month - 1) / 3) + 1) as 1 | 2 | 3 | 4;
 }
 
-/** Monthly koku income: (base + steward bonus + Tokimeki tier bonus) x class income multiplier. */
+/**
+ * Monthly koku income: (base + steward bonus + Tokimeki tier bonus) x
+ * class income multiplier, plus a flat stipend from an equipped
+ * kanzashi's kokuStipend passive (e.g. Sango).
+ */
 export function computeIncome(
   staff: Record<StaffRole, boolean>,
   tokimeki: number,
   classId: ClassId | null = null,
+  kanzashiEquipped: string | null = null,
 ): number {
   let income = BASE_INCOME;
   if (staff.steward) income += STAFF_DEFINITIONS.steward.incomeBonus;
   income += getTokimekiTier(tokimeki).incomeBonus;
   const incomeMult = classId ? CLASSES[classId].incomeMult : 1;
-  return Math.round(income * incomeMult);
+  const stipend =
+    KANZASHI[kanzashiEquipped as KanzashiId]?.passives.find((p) => p.kind === 'kokuStipend')?.amount ?? 0;
+  return Math.round(income * incomeMult) + stipend;
 }
 
 /** Free actions granted for the coming month, including Tokimeki tier bonuses. */
@@ -119,7 +127,7 @@ export function applyMonthEnd(save: Save): Save {
     ...next,
     resources: {
       ...next.resources,
-      koku: next.resources.koku + computeIncome(next.staff, next.tokimeki, next.classId),
+      koku: next.resources.koku + computeIncome(next.staff, next.tokimeki, next.classId, next.kanzashiEquipped),
     },
   };
   next = tickCalendar(next);

@@ -1,4 +1,5 @@
 import { CLASSES, computeComposureCap } from '../content/classes';
+import { assignKanzashiMonths } from './kanzashi';
 import type { ClassId, FactionId, Save } from './types';
 
 /**
@@ -29,6 +30,7 @@ export function applyClass(save: Save, classId: ClassId): Save {
       ...save.wardrobe,
       owned: [...save.wardrobe.owned, ...def.startRobes],
     },
+    kanzashiAssignments: assignKanzashiMonths(save.kanzashiSeed, save.year),
   };
 
   for (const tag of def.startGossipTags ?? []) {

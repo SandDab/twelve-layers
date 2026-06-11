@@ -1,11 +1,16 @@
 import type { ClassDef } from './classes';
+import type { KanzashiDef, KanzashiId } from './kanzashi';
 import { getRobe } from './robes';
 import type { Scene } from '../engine/scene';
-import type { AttributeKey, ClassId } from '../engine/types';
+import type { AttributeKey, ClassId, ThemeTag } from '../engine/types';
 
 const VALID_ATTRIBUTES: readonly AttributeKey[] = ['rank', 'charisma', 'allure', 'rhetoric', 'taste'];
 
 const VALID_CLASS_IDS: readonly ClassId[] = ['governors_heir', 'judges_child', 'old_name', 'salon_child'];
+
+const VALID_THEME_TAGS: readonly ThemeTag[] = ['principle', 'restraint', 'alignment', 'grace'];
+
+const VALID_KANZASHI_IDS: readonly KanzashiId[] = ['kobai', 'tsukikage', 'fuji', 'sango'];
 
 export type PoemFragmentLike = {
   id: string;
@@ -49,6 +54,12 @@ export function lintScenes(scenes: Record<string, Scene>): string[] {
           errors.push(
             `${scene.id}/${node.id}: choice "${choice.text}" has unknown ifClass "${choice.ifClass}"`,
           );
+        }
+
+        for (const tag of choice.themeTags ?? []) {
+          if (!VALID_THEME_TAGS.includes(tag)) {
+            errors.push(`${scene.id}/${node.id}: choice "${choice.text}" has unknown themeTag "${tag}"`);
+          }
         }
 
         for (const effect of choice.effects) {
@@ -98,6 +109,69 @@ export function lintClasses(classes: Record<string, ClassDef>, scenes: Record<st
           `class "${def.id}": scheduledRipples references unregistered scene "${ripple.sceneId}"`,
         );
       }
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * Validate that any scene carrying kanzashi themeTags covers all four
+ * theme tags somewhere in its choices — every anchor event needs at
+ * least one choice per tag, so all four kanzashi are reachable
+ * regardless of their secret month assignment (CLAUDE.md, GAME_DESIGN.md §8).
+ */
+export function lintThemeTagCoverage(scenes: Record<string, Scene>): string[] {
+  const errors: string[] = [];
+
+  for (const scene of Object.values(scenes)) {
+    const present = new Set<ThemeTag>();
+    for (const node of Object.values(scene.nodes)) {
+      for (const choice of node.choices ?? []) {
+        for (const tag of choice.themeTags ?? []) {
+          present.add(tag);
+        }
+      }
+    }
+
+    if (present.size === 0) continue;
+
+    for (const tag of VALID_THEME_TAGS) {
+      if (!present.has(tag)) {
+        errors.push(`${scene.id}: missing a choice tagged with theme "${tag}"`);
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * Validate the kanzashi roster (GAME_DESIGN.md §8): exactly the four
+ * expected ids, each with a valid and distinct theme tag, and a
+ * deliverySceneId that resolves to a registered scene.
+ */
+export function lintKanzashi(kanzashi: Record<string, KanzashiDef>, scenes: Record<string, Scene>): string[] {
+  const errors: string[] = [];
+
+  for (const id of VALID_KANZASHI_IDS) {
+    if (!kanzashi[id]) {
+      errors.push(`kanzashi: missing definition for "${id}"`);
+    }
+  }
+
+  const seenThemes = new Set<ThemeTag>();
+  for (const def of Object.values(kanzashi)) {
+    if (!VALID_THEME_TAGS.includes(def.theme)) {
+      errors.push(`kanzashi "${def.id}": unknown theme "${def.theme}"`);
+    } else if (seenThemes.has(def.theme)) {
+      errors.push(`kanzashi "${def.id}": theme "${def.theme}" is already used by another kanzashi`);
+    } else {
+      seenThemes.add(def.theme);
+    }
+
+    if (!scenes[def.deliverySceneId]) {
+      errors.push(`kanzashi "${def.id}": deliverySceneId references unregistered scene "${def.deliverySceneId}"`);
     }
   }
 

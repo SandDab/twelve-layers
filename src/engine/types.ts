@@ -20,7 +20,8 @@ export type Effect =
   | { kind: 'favor'; npc: string; delta: number }
   | { kind: 'flag'; flag: string; value: boolean }
   | { kind: 'ripple'; triggerMonth: number; sceneId: string; ifFlags?: string[] }
-  | { kind: 'gossip'; tag: string; factionDeltas: Partial<Record<FactionId, number>>; delayMonths: 1 | 2 };
+  | { kind: 'gossip'; tag: string; factionDeltas: Partial<Record<FactionId, number>>; delayMonths: 1 | 2 }
+  | { kind: 'kanzashi'; id: string };
 
 export type RippleEntry = {
   triggerYear: number;
@@ -56,7 +57,7 @@ export type ClassId = 'governors_heir' | 'judges_child' | 'old_name' | 'salon_ch
 /** Kanzashi theme tags (GAME_DESIGN.md §8) — metadata on existing choices. */
 export type ThemeTag = 'principle' | 'restraint' | 'alignment' | 'grace';
 
-export const CURRENT_SAVE_SCHEMA_VERSION = 4;
+export const CURRENT_SAVE_SCHEMA_VERSION = 5;
 
 export type Save = {
   schemaVersion: number;
@@ -80,6 +81,13 @@ export type Save = {
   staff: Record<StaffRole, boolean>;
   wardrobe: WardrobeState;
   actionsRemaining: number; // free actions left this month, reset at month tick
+
+  // Kanzashi (GAME_DESIGN.md §8): owned/equipped persist across years;
+  // assignments are re-rolled each year from kanzashiSeed.
+  kanzashiOwned: string[];
+  kanzashiEquipped: string | null;
+  kanzashiAssignments: Record<string, number>; // kanzashiId -> assigned month this year
+  kanzashiSeed: number;
 
   debug: boolean;
 };
@@ -132,6 +140,10 @@ export function createInitialSave(): Save {
     staff: { ...DEFAULT_STAFF },
     wardrobe: { owned: [], equipped: null },
     actionsRemaining: BASE_FREE_ACTIONS,
+    kanzashiOwned: [],
+    kanzashiEquipped: null,
+    kanzashiAssignments: {},
+    kanzashiSeed: 1,
     debug: false,
   };
 }

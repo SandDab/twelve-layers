@@ -29,4 +29,13 @@ describe('computeComposureCap', () => {
     expect(computeComposureCap('governors_heir')).toBe(100);
     expect(computeComposureCap('old_name')).toBe(100);
   });
+
+  it('applies Tsukikage\'s +25% Composure cap on top of the class multiplier', () => {
+    expect(computeComposureCap(null, 'tsukikage')).toBe(125);
+    expect(computeComposureCap('judges_child', 'tsukikage')).toBe(156); // 100 * 1.25 * 1.25, rounded
+  });
+
+  it('ignores an unequipped/null kanzashi', () => {
+    expect(computeComposureCap('judges_child', null)).toBe(125);
+  });
 });

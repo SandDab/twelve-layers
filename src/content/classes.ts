@@ -2,6 +2,7 @@
 // at new game, and permanent for the save. All `attrs` sum to exactly 100
 // (lint-enforced — see src/content/lint.ts).
 
+import { KANZASHI, type KanzashiId } from './kanzashi';
 import type { ClassId, FactionId } from '../engine/types';
 
 export type ClassDef = {
@@ -100,8 +101,14 @@ export function getClassDef(id: ClassId): ClassDef {
   return CLASSES[id];
 }
 
-/** Composure cap, scaled by the chosen class's composureCapMult (1 if no class chosen yet). */
-export function computeComposureCap(classId: ClassId | null): number {
-  const mult = classId ? CLASSES[classId].composureCapMult : 1;
-  return Math.round(BASE_COMPOSURE_CAP * mult);
+/**
+ * Composure cap, scaled by the chosen class's composureCapMult (1 if no
+ * class chosen yet) and by the equipped kanzashi's composureCapMult
+ * passive, if any (e.g. Tsukikage, +25%).
+ */
+export function computeComposureCap(classId: ClassId | null, kanzashiEquipped?: string | null): number {
+  const classMult = classId ? CLASSES[classId].composureCapMult : 1;
+  const kanzashiMult =
+    KANZASHI[kanzashiEquipped as KanzashiId]?.passives.find((p) => p.kind === 'composureCapMult')?.mult ?? 1;
+  return Math.round(BASE_COMPOSURE_CAP * classMult * kanzashiMult);
 }

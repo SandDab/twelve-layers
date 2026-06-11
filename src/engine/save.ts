@@ -1,3 +1,4 @@
+import { assignKanzashiMonths } from './kanzashi';
 import { CURRENT_SAVE_SCHEMA_VERSION, createInitialSave, type Save } from './types';
 
 export const SAVE_KEY = 'twelvelayers.save.v1';
@@ -30,6 +31,21 @@ function migrate(raw: unknown): Save {
     // Governor's Heir for data completeness. New games pick a class via
     // the class picker (classId starts null in createInitialSave()).
     save = { ...save, schemaVersion: 4, classId: save.classId ?? 'governors_heir' };
+  }
+
+  if (save.schemaVersion < 5) {
+    // Pre-M2-kanzashi saves have no kanzashi fields. Default the seed and
+    // compute this year's assignment retroactively so the save isn't
+    // missing a year of kanzashi opportunities.
+    const kanzashiSeed = 1;
+    save = {
+      ...save,
+      schemaVersion: 5,
+      kanzashiOwned: [],
+      kanzashiEquipped: null,
+      kanzashiSeed,
+      kanzashiAssignments: assignKanzashiMonths(kanzashiSeed, save.year),
+    };
   }
 
   return { ...createInitialSave(), ...save, schemaVersion: CURRENT_SAVE_SCHEMA_VERSION };

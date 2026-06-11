@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import type { Scene } from '../engine/scene';
 import { CLASSES } from './classes';
-import { lintClasses, lintPoemFragments, lintScenes } from './lint';
+import { KANZASHI } from './kanzashi';
+import { lintClasses, lintKanzashi, lintPoemFragments, lintScenes, lintThemeTagCoverage } from './lint';
 import { SCENES } from './scenes';
 
 describe('lintScenes', () => {
@@ -146,6 +147,65 @@ describe('lintClasses', () => {
 
     expect(lintClasses(classes as never, SCENES)).toEqual([
       'class "bad": scheduledRipples references unregistered scene "m99_missing"',
+    ]);
+  });
+});
+
+describe('lintThemeTagCoverage', () => {
+  it('passes for the registered scene content', () => {
+    expect(lintThemeTagCoverage(SCENES)).toEqual([]);
+  });
+
+  it('flags a scene with themeTags that does not cover all four tags', () => {
+    const scenes: Record<string, Scene> = {
+      bad: {
+        id: 'bad',
+        title: 'Bad',
+        startNode: 'a',
+        nodes: {
+          a: {
+            id: 'a',
+            body: '...',
+            choices: [
+              { text: 'principle only', themeTags: ['principle'], effects: [], goto: 'a' },
+            ],
+          },
+        },
+      },
+    };
+
+    expect(lintThemeTagCoverage(scenes)).toEqual([
+      'bad: missing a choice tagged with theme "restraint"',
+      'bad: missing a choice tagged with theme "alignment"',
+      'bad: missing a choice tagged with theme "grace"',
+    ]);
+  });
+});
+
+describe('lintKanzashi', () => {
+  it('passes for the registered kanzashi roster', () => {
+    expect(lintKanzashi(KANZASHI, SCENES)).toEqual([]);
+  });
+
+  it('flags a kanzashi whose deliverySceneId is not registered', () => {
+    const kanzashi = {
+      ...KANZASHI,
+      kobai: { ...KANZASHI.kobai, deliverySceneId: 'm99_missing' },
+    };
+
+    expect(lintKanzashi(kanzashi, SCENES)).toEqual([
+      'kanzashi "kobai": deliverySceneId references unregistered scene "m99_missing"',
+    ]);
+  });
+
+  it('flags two kanzashi sharing the same theme', () => {
+    const kanzashi = {
+      ...KANZASHI,
+      tsukikage: { ...KANZASHI.tsukikage, theme: KANZASHI.kobai.theme },
+    };
+
+    expect(lintKanzashi(kanzashi, SCENES)).toEqual([
+      'kanzashi "tsukikage": theme "principle" is already used by another kanzashi',
     ]);
   });
 });

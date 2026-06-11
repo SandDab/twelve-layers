@@ -41,6 +41,7 @@ export const m1NewYear: Scene = {
         {
           text: '[Rhetoric 15] Recite your father’s titles and provinces in full, precisely as protocol demands.',
           check: { attr: 'rhetoric', min: 15 },
+          themeTags: ['alignment'],
           effects: [
             { kind: 'attr', attr: 'rhetoric', delta: 2 },
             { kind: 'favor', npc: 'regent', delta: 1 },
@@ -50,6 +51,7 @@ export const m1NewYear: Scene = {
         {
           text: '[Taste 15] Say nothing. Let the layered colors at your collar speak for you.',
           check: { attr: 'taste', min: 15 },
+          themeTags: ['principle'],
           effects: [
             { kind: 'attr', attr: 'taste', delta: 2 },
             { kind: 'resource', res: 'tokimeki', delta: 3 },
@@ -60,6 +62,7 @@ export const m1NewYear: Scene = {
         },
         {
           text: 'Bow quietly and take your place. No one expects much from a governor’s child.',
+          themeTags: ['grace'],
           effects: [{ kind: 'resource', res: 'composure', delta: 5 }],
           goto: 'm1_newyear_02d',
         },
@@ -67,6 +70,7 @@ export const m1NewYear: Scene = {
           text:
             '[Background: The Old Name] Say nothing of titles. Let the chamberlain place the name himself.',
           ifClass: 'old_name',
+          themeTags: ['restraint'],
           effects: [
             { kind: 'attr', attr: 'allure', delta: 1 },
             { kind: 'favor', npc: 'chamberlain', delta: 1 },

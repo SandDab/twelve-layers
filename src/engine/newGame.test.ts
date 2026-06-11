@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { assignKanzashiMonths } from './kanzashi';
 import { applyClass } from './newGame';
 import { createInitialSave } from './types';
 
@@ -12,6 +13,11 @@ describe('applyClass', () => {
     expect(save.resources.composure).toBe(100); // no Composure modifier
     expect(save.flags.smells_of_the_provinces).toBe(true);
     expect(save.factionReputation.rivalHouses).toBe(-10);
+  });
+
+  it('assigns the year-1 kanzashi months from the seed', () => {
+    const save = applyClass(createInitialSave(), 'governors_heir');
+    expect(save.kanzashiAssignments).toEqual(assignKanzashiMonths(save.kanzashiSeed, save.year));
   });
 
   it("applies the Judge's Child Composure cap and starting wardrobe", () => {

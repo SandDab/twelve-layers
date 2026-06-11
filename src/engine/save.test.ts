@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { tickCalendar } from './calendar';
+import { assignKanzashiMonths } from './kanzashi';
 import { clearSave, loadSave, SAVE_KEY, writeSave } from './save';
 import { CURRENT_SAVE_SCHEMA_VERSION, createInitialSave } from './types';
 
@@ -149,5 +150,35 @@ describe('schema migration', () => {
     const loaded = loadSave();
     expect(loaded.schemaVersion).toBe(CURRENT_SAVE_SCHEMA_VERSION);
     expect(loaded.classId).toBe('governors_heir');
+  });
+
+  it('migrates a v4 save (no kanzashi fields) to v5, computing this year\'s assignment', () => {
+    const v4Save = {
+      schemaVersion: 4,
+      classId: 'governors_heir',
+      year: 2,
+      month: 5,
+      tokimeki: 12,
+      tokimekiHistory: {},
+      attributes: { rank: 0, charisma: 10, allure: 10, rhetoric: 10, taste: 10 },
+      resources: { koku: 100, composure: 100 },
+      favors: {},
+      flags: {},
+      rippleQueue: [],
+      pendingGossip: [],
+      factionReputation: { regent: 0, rivalHouses: 0, imperial: 0, clergy: 0 },
+      sceneProgress: {},
+      staff: { steward: false, poetTutor: false, gardener: false, seamstress: false },
+      wardrobe: { owned: [], equipped: null },
+      actionsRemaining: 3,
+      debug: false,
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(v4Save));
+
+    const loaded = loadSave();
+    expect(loaded.schemaVersion).toBe(CURRENT_SAVE_SCHEMA_VERSION);
+    expect(loaded.kanzashiOwned).toEqual([]);
+    expect(loaded.kanzashiEquipped).toBeNull();
+    expect(loaded.kanzashiAssignments).toEqual(assignKanzashiMonths(loaded.kanzashiSeed, 2));
   });
 });

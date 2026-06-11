@@ -23,7 +23,7 @@ function applyEffect(effect: Effect, save: Save): Save {
         return { ...save, tokimeki: Math.max(0, save.tokimeki + effect.delta) };
       }
       if (effect.res === 'composure') {
-        const cap = computeComposureCap(save.classId);
+        const cap = computeComposureCap(save.classId, save.kanzashiEquipped);
         return {
           ...save,
           resources: {
@@ -64,6 +64,10 @@ function applyEffect(effect: Effect, save: Save): Save {
       };
       return { ...save, rippleQueue: [...save.rippleQueue, ripple] };
     }
+
+    case 'kanzashi':
+      if (save.kanzashiOwned.includes(effect.id)) return save;
+      return { ...save, kanzashiOwned: [...save.kanzashiOwned, effect.id] };
 
     case 'gossip': {
       const { year: triggerYear, month: triggerMonth } = addMonths(

@@ -68,6 +68,14 @@ describe('applyEffects', () => {
     ]);
   });
 
+  it('applies a kanzashi effect, granting ownership once', () => {
+    let save = applyEffects([{ kind: 'kanzashi', id: 'kobai' }], createInitialSave());
+    expect(save.kanzashiOwned).toEqual(['kobai']);
+
+    save = applyEffects([{ kind: 'kanzashi', id: 'kobai' }], save);
+    expect(save.kanzashiOwned).toEqual(['kobai']);
+  });
+
   it('threads multiple effects through in order', () => {
     const save = applyEffects(
       [
