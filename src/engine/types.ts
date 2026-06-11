@@ -41,7 +41,16 @@ export type SceneProgress = {
   completed: boolean;
 };
 
-export const CURRENT_SAVE_SCHEMA_VERSION = 2;
+export type StaffRole = 'steward' | 'poetTutor' | 'gardener' | 'seamstress';
+
+export const STAFF_ROLES: StaffRole[] = ['steward', 'poetTutor', 'gardener', 'seamstress'];
+
+export type WardrobeState = {
+  owned: string[];
+  equipped: string | null;
+};
+
+export const CURRENT_SAVE_SCHEMA_VERSION = 3;
 
 export type Save = {
   schemaVersion: number;
@@ -59,6 +68,10 @@ export type Save = {
   pendingGossip: GossipEntry[];
   factionReputation: Record<FactionId, number>;
   sceneProgress: Record<string, SceneProgress>;
+
+  staff: Record<StaffRole, boolean>;
+  wardrobe: WardrobeState;
+  actionsRemaining: number; // free actions left this month, reset at month tick
 
   debug: boolean;
 };
@@ -83,6 +96,15 @@ export const DEFAULT_RESOURCES: Resources = {
   composure: 100,
 };
 
+export const DEFAULT_STAFF: Record<StaffRole, boolean> = {
+  steward: false,
+  poetTutor: false,
+  gardener: false,
+  seamstress: false,
+};
+
+export const BASE_FREE_ACTIONS = 3;
+
 export function createInitialSave(): Save {
   return {
     schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
@@ -98,6 +120,9 @@ export function createInitialSave(): Save {
     pendingGossip: [],
     factionReputation: { ...DEFAULT_FACTION_REPUTATION },
     sceneProgress: {},
+    staff: { ...DEFAULT_STAFF },
+    wardrobe: { owned: [], equipped: null },
+    actionsRemaining: BASE_FREE_ACTIONS,
     debug: false,
   };
 }

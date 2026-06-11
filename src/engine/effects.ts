@@ -1,7 +1,7 @@
 import type { Effect, GossipEntry, RippleEntry, Save } from './types';
 
 /** Add `delta` months to a year/month pair, rolling over at 12. */
-function addMonths(year: number, month: number, delta: number): { year: number; month: number } {
+export function addMonths(year: number, month: number, delta: number): { year: number; month: number } {
   const total = (month - 1) + delta;
   return { year: year + Math.floor(total / 12), month: (total % 12) + 1 };
 }

@@ -1,7 +1,14 @@
 import { create } from 'zustand';
-import { tickCalendar } from '../engine/calendar';
+import { getRobe } from '../content/robes';
+import { STAFF_DEFINITIONS } from '../content/staff';
 import { applyEffects } from '../engine/effects';
-import { consumeRipple, resolveDueGossip } from '../engine/ripples';
+import {
+  applyMonthEnd,
+  computeRestGain,
+  computeTrainGain,
+  TRAIN_COMPOSURE_COST,
+} from '../engine/household';
+import { consumeRipple } from '../engine/ripples';
 import { clearSave, loadSave, writeSave } from '../engine/save';
 import {
   createInitialSave,
@@ -9,6 +16,7 @@ import {
   type Effect,
   type RippleEntry,
   type Save,
+  type StaffRole,
 } from '../engine/types';
 
 export interface GameState extends Save {
@@ -24,6 +32,11 @@ export interface GameState extends Save {
   applyChoiceEffects: (effects: Effect[]) => void;
   setSceneNode: (sceneId: string, nodeId: string) => void;
   completeScene: (sceneId: string) => void;
+  hireStaff: (role: StaffRole) => void;
+  trainAttribute: (attr: AttributeKey) => void;
+  rest: () => void;
+  buyRobe: (robeId: string) => void;
+  equipRobe: (robeId: string | null) => void;
   resetSave: () => void;
 }
 
@@ -41,6 +54,9 @@ const SAVE_FIELDS = [
   'pendingGossip',
   'factionReputation',
   'sceneProgress',
+  'staff',
+  'wardrobe',
+  'actionsRemaining',
   'debug',
 ] as const;
 
@@ -57,7 +73,7 @@ export const useGameStore = create<GameState>((set) => ({
 
   tickMonth: () =>
     set((state) => {
-      const next = resolveDueGossip(tickCalendar(extractSave(state)));
+      const next = applyMonthEnd(extractSave(state));
       writeSave(next);
       return next;
     }),
@@ -166,6 +182,78 @@ export const useGameStore = create<GameState>((set) => ({
           ...state.sceneProgress,
           [sceneId]: { currentNode: existing?.currentNode ?? '', completed: true },
         },
+      };
+      writeSave(next);
+      return next;
+    }),
+
+  hireStaff: (role) =>
+    set((state) => {
+      if (state.staff[role] || state.resources.koku < STAFF_DEFINITIONS[role].cost) return state;
+      const next: Save = {
+        ...extractSave(state),
+        resources: { ...state.resources, koku: state.resources.koku - STAFF_DEFINITIONS[role].cost },
+        staff: { ...state.staff, [role]: true },
+      };
+      writeSave(next);
+      return next;
+    }),
+
+  trainAttribute: (attr) =>
+    set((state) => {
+      if (state.actionsRemaining <= 0 || state.resources.composure < TRAIN_COMPOSURE_COST) return state;
+      const save = extractSave(state);
+      const gain = computeTrainGain(attr, save.staff);
+      const next: Save = {
+        ...applyEffects(
+          [
+            { kind: 'attr', attr, delta: gain },
+            { kind: 'resource', res: 'composure', delta: -TRAIN_COMPOSURE_COST },
+          ],
+          save,
+        ),
+        actionsRemaining: state.actionsRemaining - 1,
+      };
+      writeSave(next);
+      return next;
+    }),
+
+  rest: () =>
+    set((state) => {
+      if (state.actionsRemaining <= 0) return state;
+      const save = extractSave(state);
+      const gain = computeRestGain(save.staff);
+      const next: Save = {
+        ...save,
+        resources: { ...save.resources, composure: Math.min(100, save.resources.composure + gain) },
+        actionsRemaining: state.actionsRemaining - 1,
+      };
+      writeSave(next);
+      return next;
+    }),
+
+  buyRobe: (robeId) =>
+    set((state) => {
+      const robe = getRobe(robeId);
+      if (!robe || state.wardrobe.owned.includes(robeId) || state.resources.koku < robe.cost) {
+        return state;
+      }
+      const next: Save = {
+        ...extractSave(state),
+        resources: { ...state.resources, koku: state.resources.koku - robe.cost },
+        wardrobe: { ...state.wardrobe, owned: [...state.wardrobe.owned, robeId] },
+      };
+      writeSave(next);
+      return next;
+    }),
+
+  equipRobe: (robeId) =>
+    set((state) => {
+      if (!state.staff.seamstress) return state;
+      if (robeId !== null && !state.wardrobe.owned.includes(robeId)) return state;
+      const next: Save = {
+        ...extractSave(state),
+        wardrobe: { ...state.wardrobe, equipped: robeId },
       };
       writeSave(next);
       return next;

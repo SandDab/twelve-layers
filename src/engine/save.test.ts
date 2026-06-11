@@ -96,4 +96,31 @@ describe('schema migration', () => {
     expect(loaded.tokimekiHistory).toEqual({ 1: 99 });
     expect((loaded as unknown as { clout?: number }).clout).toBeUndefined();
   });
+
+  it('migrates a v2 save (no staff/wardrobe/actionsRemaining) to v3 with M2 defaults', () => {
+    const v2Save = {
+      schemaVersion: 2,
+      year: 1,
+      month: 5,
+      tokimeki: 12,
+      tokimekiHistory: {},
+      attributes: { rank: 0, charisma: 10, allure: 10, rhetoric: 10, taste: 10 },
+      resources: { koku: 100, composure: 100 },
+      favors: {},
+      flags: {},
+      rippleQueue: [],
+      pendingGossip: [],
+      factionReputation: { regent: 0, rivalHouses: 0, imperial: 0, clergy: 0 },
+      sceneProgress: {},
+      debug: false,
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(v2Save));
+
+    const loaded = loadSave();
+    expect(loaded.schemaVersion).toBe(CURRENT_SAVE_SCHEMA_VERSION);
+    expect(loaded.tokimeki).toBe(12);
+    expect(loaded.staff).toEqual({ steward: false, poetTutor: false, gardener: false, seamstress: false });
+    expect(loaded.wardrobe).toEqual({ owned: [], equipped: null });
+    expect(loaded.actionsRemaining).toBe(3);
+  });
 });
