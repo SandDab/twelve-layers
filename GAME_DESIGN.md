@@ -25,6 +25,7 @@ The court runs on poetry, taste, and rumor. Every visible win can be a hidden lo
 - **The court is fictional but period-realistic.** Invented names, recognizable silhouettes — a regent at his zenith, a sidelined imperial branch, a celebrated literary salon — but no real historical figures. Frees the writing; keeps the texture.
 
 ### Class picker: four family backgrounds
+**New-game flow (fixed order):** title screen → New Game → class picker (one screen, four cards) → name & gender → class effects applied (attributes, Koku, robes, gossip tags, faction rep, scheduled ripples) → year 1, month 1 tutorial event. The class is chosen before any gameplay and is permanent for the save; Continue bypasses all of this and loads directly.
 New game opens with a one-screen class choice. All classes total **100 attribute points** — balance comes from shape and economy, not size. Each is strong in exactly one of the game's four lanes, and each carries one perk and one liability enforced by existing systems (gossip, ripples, factions, wardrobe). No class is an easy button; no class locks a romance route — every gate is reachable by training.
 
 | Class | Family background | Cha | All | Rhe | Taste | Lane |
