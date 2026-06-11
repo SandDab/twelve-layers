@@ -198,6 +198,7 @@ Hold-and-release timing: hold as clouds pass, release when the moon clears, pair
 ## 12. Visual direction
 
 - **Yamato-e as the rendering answer:** fukinuki yatai (roofless, oblique interiors) for scene backgrounds; hikime kagibana ("line eyes, hook nose") stylization for faces — period-correct *and* dramatically cheaper to draw/generate consistently than expressive portraits. Emotion is carried by posture, fans, sleeves, and text.
+- **Source art from public-domain Heian-era works where possible** (e.g. Genji Monogatari Emaki, other yamato-e handscrolls/screens in the public domain or under open licenses) for backdrops and possibly character bases, rather than commissioning or generating new art from scratch. To be sourced and vetted for licensing later; placeholder art remains the interim approach (see §5 of the milestones).
 - **Signature element — the living kasane palette:** the entire UI chrome (backgrounds, card edges, accents) derives from the current month's kasane no irome color pairing, shifting as the calendar advances. The interface itself observes the seasons; the wardrobe system teaches the player to read it.
 - Texture: washi paper grain on panels; vertical text used as accent (titles, chapter cards), horizontal for all reading text.
 - Type: a mincho-style display face (e.g., Shippori Mincho on Google Fonts) for titles, a clean humanist body face for dialogue; both must hold up at mobile sizes.

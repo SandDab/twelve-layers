@@ -57,7 +57,53 @@ export type ClassId = 'governors_heir' | 'judges_child' | 'old_name' | 'salon_ch
 /** Kanzashi theme tags (GAME_DESIGN.md §8) — metadata on existing choices. */
 export type ThemeTag = 'principle' | 'restraint' | 'alignment' | 'grace';
 
-export const CURRENT_SAVE_SCHEMA_VERSION = 5;
+/** The three v0.1 romance candidates (GAME_DESIGN.md §6). */
+export type CandidateId = 'sequesteredHeir' | 'sharpBrush' | 'fadedBranch';
+
+export const CANDIDATE_IDS: CandidateId[] = ['sequesteredHeir', 'sharpBrush', 'fadedBranch'];
+
+/**
+ * Romance stages (GAME_DESIGN.md §6). v0.1 content covers 1-4;
+ * 5 (Kaimami / meeting) and 6 (Commitment) are post-v0.1.
+ */
+export type RomanceStage = 1 | 2 | 3 | 4 | 5 | 6;
+
+export type RomanceState = {
+  stage: RomanceStage;
+  /** Imagery tags from the candidate's most recent reply, for the next poem's callback bonus. */
+  receivedImageTags: string[];
+  /** Successful Exchange-stage poems sent so far (advances stage 3 -> 4 at the threshold). */
+  exchangeCount: number;
+  /** Calendar position of the last poem sent, for one-poem-per-month pacing. */
+  lastSentYear: number | null;
+  lastSentMonth: number | null;
+};
+
+export function createInitialRomanceState(): RomanceState {
+  return { stage: 1, receivedImageTags: [], exchangeCount: 0, lastSentYear: null, lastSentMonth: null };
+}
+
+/** A waka fragment slot (GAME_DESIGN.md §6 poem builder: season-word -> image -> turn). */
+export type PoemSlot = 'season' | 'image' | 'turn';
+
+/**
+ * A poem fragment, authored with all four language fields at authoring
+ * time (CLAUDE.md). `romaji` is the shipped M4 display: the English
+ * line with its key Japanese term romanized inline. `jp`/`kana` back
+ * Gloss/Immersion modes (M6).
+ */
+export type PoemFragment = {
+  id: string;
+  slot: PoemSlot;
+  jp: string;
+  kana: string;
+  romaji: string;
+  en: string;
+  season: 1 | 2 | 3 | 4;
+  tags: string[];
+};
+
+export const CURRENT_SAVE_SCHEMA_VERSION = 6;
 
 export type Save = {
   schemaVersion: number;
