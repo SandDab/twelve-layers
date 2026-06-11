@@ -1,10 +1,14 @@
-import type { Check, Effect } from './types';
+import type { Check, ClassId, Effect, ThemeTag } from './types';
 
 export type NodeId = string;
 
 export type Choice = {
   text: string;
   check?: Check;
+  // Only offered to players of this class (FNV-style `[Background: X]` options).
+  ifClass?: ClassId;
+  // Kanzashi theme tags this choice satisfies (GAME_DESIGN.md §8).
+  themeTags?: ThemeTag[];
   effects: Effect[];
   goto: NodeId;
 };

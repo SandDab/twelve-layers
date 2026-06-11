@@ -41,6 +41,16 @@ describe('computeIncome', () => {
     const save = createInitialSave();
     expect(computeIncome(save.staff, 25)).toBe(30);
   });
+
+  it("applies the Governor's Heir +25% estate income multiplier", () => {
+    const save = createInitialSave();
+    expect(computeIncome(save.staff, save.tokimeki, 'governors_heir')).toBe(25); // 20 * 1.25
+  });
+
+  it("applies the Old Name's reduced estate income multiplier", () => {
+    const save = createInitialSave();
+    expect(computeIncome(save.staff, save.tokimeki, 'old_name')).toBe(15); // 20 * 0.75
+  });
 });
 
 describe('computeFreeActions / Tokimeki tiers', () => {

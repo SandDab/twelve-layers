@@ -1,7 +1,11 @@
+import type { ClassDef } from './classes';
+import { getRobe } from './robes';
 import type { Scene } from '../engine/scene';
-import type { AttributeKey } from '../engine/types';
+import type { AttributeKey, ClassId } from '../engine/types';
 
 const VALID_ATTRIBUTES: readonly AttributeKey[] = ['rank', 'charisma', 'allure', 'rhetoric', 'taste'];
+
+const VALID_CLASS_IDS: readonly ClassId[] = ['governors_heir', 'judges_child', 'old_name', 'salon_child'];
 
 export type PoemFragmentLike = {
   id: string;
@@ -41,6 +45,12 @@ export function lintScenes(scenes: Record<string, Scene>): string[] {
           );
         }
 
+        if (choice.ifClass && !VALID_CLASS_IDS.includes(choice.ifClass)) {
+          errors.push(
+            `${scene.id}/${node.id}: choice "${choice.text}" has unknown ifClass "${choice.ifClass}"`,
+          );
+        }
+
         for (const effect of choice.effects) {
           if (effect.kind === 'attr' && !VALID_ATTRIBUTES.includes(effect.attr)) {
             errors.push(
@@ -55,6 +65,38 @@ export function lintScenes(scenes: Record<string, Scene>): string[] {
             );
           }
         }
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * Validate the class roster (GAME_DESIGN.md §2): each class's attrs must
+ * sum to exactly 100, every starting robe must be a registered robe id,
+ * and every scheduled ripple must reference a registered scene.
+ */
+export function lintClasses(classes: Record<string, ClassDef>, scenes: Record<string, Scene>): string[] {
+  const errors: string[] = [];
+
+  for (const def of Object.values(classes)) {
+    const sum = def.attrs.charisma + def.attrs.allure + def.attrs.rhetoric + def.attrs.taste;
+    if (sum !== 100) {
+      errors.push(`class "${def.id}": attrs sum to ${sum}, expected 100`);
+    }
+
+    for (const robeId of def.startRobes) {
+      if (!getRobe(robeId)) {
+        errors.push(`class "${def.id}": startRobes references unregistered robe "${robeId}"`);
+      }
+    }
+
+    for (const ripple of def.scheduledRipples ?? []) {
+      if (!scenes[ripple.sceneId]) {
+        errors.push(
+          `class "${def.id}": scheduledRipples references unregistered scene "${ripple.sceneId}"`,
+        );
       }
     }
   }

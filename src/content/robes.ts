@@ -51,6 +51,28 @@ export const ROBES: Robe[] = [
     taste: 5,
     cost: 50,
   },
+  {
+    // The Judge's Child's starting robe (GAME_DESIGN.md §2): plain,
+    // unremarkable, no seasonal flattery to fall back on.
+    id: 'plain_robe',
+    name: 'Plain Robe',
+    season: 1,
+    kasane: ['undyed', 'pale grey'],
+    allure: 0,
+    taste: 0,
+    cost: 15,
+  },
+  {
+    // The Old Name's heirloom set (GAME_DESIGN.md §2): best-in-slot,
+    // assigned to season 1 for v0.1's "for two seasons" simplification.
+    id: 'heirloom_robe',
+    name: 'Heirloom Kasane',
+    season: 1,
+    kasane: ['deep violet', 'aged gold'],
+    allure: 6,
+    taste: 6,
+    cost: 200,
+  },
 ];
 
 export function getRobe(id: string): Robe | undefined {

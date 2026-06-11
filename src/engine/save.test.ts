@@ -123,4 +123,31 @@ describe('schema migration', () => {
     expect(loaded.wardrobe).toEqual({ owned: [], equipped: null });
     expect(loaded.actionsRemaining).toBe(3);
   });
+
+  it('migrates a v3 save (no classId) to v4, defaulting to the Governor\'s Heir', () => {
+    const v3Save = {
+      schemaVersion: 3,
+      year: 1,
+      month: 5,
+      tokimeki: 12,
+      tokimekiHistory: {},
+      attributes: { rank: 0, charisma: 10, allure: 10, rhetoric: 10, taste: 10 },
+      resources: { koku: 100, composure: 100 },
+      favors: {},
+      flags: {},
+      rippleQueue: [],
+      pendingGossip: [],
+      factionReputation: { regent: 0, rivalHouses: 0, imperial: 0, clergy: 0 },
+      sceneProgress: {},
+      staff: { steward: false, poetTutor: false, gardener: false, seamstress: false },
+      wardrobe: { owned: [], equipped: null },
+      actionsRemaining: 3,
+      debug: false,
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(v3Save));
+
+    const loaded = loadSave();
+    expect(loaded.schemaVersion).toBe(CURRENT_SAVE_SCHEMA_VERSION);
+    expect(loaded.classId).toBe('governors_heir');
+  });
 });

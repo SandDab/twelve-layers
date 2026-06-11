@@ -50,10 +50,18 @@ export type WardrobeState = {
   equipped: string | null;
 };
 
-export const CURRENT_SAVE_SCHEMA_VERSION = 3;
+/** The four family-background classes (GAME_DESIGN.md §2). */
+export type ClassId = 'governors_heir' | 'judges_child' | 'old_name' | 'salon_child';
+
+/** Kanzashi theme tags (GAME_DESIGN.md §8) — metadata on existing choices. */
+export type ThemeTag = 'principle' | 'restraint' | 'alignment' | 'grace';
+
+export const CURRENT_SAVE_SCHEMA_VERSION = 4;
 
 export type Save = {
   schemaVersion: number;
+  // null until the new-game class picker is completed; permanent thereafter.
+  classId: ClassId | null;
   year: number;
   month: number; // 1-12
   tokimeki: number; // resets to 0 at New Year (month 12 -> 1 rollover)
@@ -108,6 +116,7 @@ export const BASE_FREE_ACTIONS = 3;
 export function createInitialSave(): Save {
   return {
     schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
+    classId: null,
     year: 1,
     month: 1,
     tokimeki: 0,

@@ -11,6 +11,7 @@ type SceneRunnerProps = {
 
 export function SceneRunner({ scene, onComplete }: SceneRunnerProps) {
   const attributes = useGameStore((s) => s.attributes);
+  const classId = useGameStore((s) => s.classId);
   const progress = useGameStore((s) => s.sceneProgress[scene.id]);
   const setSceneNode = useGameStore((s) => s.setSceneNode);
   const completeScene = useGameStore((s) => s.completeScene);
@@ -57,19 +58,21 @@ export function SceneRunner({ scene, onComplete }: SceneRunnerProps) {
 
       {node.choices && (
         <div className="choice-fan">
-          {node.choices.map((choice, i) => {
-            const passed = choice.check ? resolveCheck(choice.check, attributes) : true;
-            return (
-              <button
-                key={i}
-                className={`btn choice-card${passed ? '' : ' choice-card-failed'}`}
-                disabled={!passed}
-                onClick={() => goto(choice.goto, choice.effects)}
-              >
-                {choice.text}
-              </button>
-            );
-          })}
+          {node.choices
+            .filter((choice) => !choice.ifClass || choice.ifClass === classId)
+            .map((choice, i) => {
+              const passed = choice.check ? resolveCheck(choice.check, attributes) : true;
+              return (
+                <button
+                  key={i}
+                  className={`btn choice-card${passed ? '' : ' choice-card-failed'}`}
+                  disabled={!passed}
+                  onClick={() => goto(choice.goto, choice.effects)}
+                >
+                  {choice.text}
+                </button>
+              );
+            })}
         </div>
       )}
 

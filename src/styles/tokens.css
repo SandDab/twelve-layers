@@ -259,6 +259,14 @@ button {
   font-weight: 600;
 }
 
+.class-card {
+  margin-top: 0.75rem;
+}
+
+.class-card:first-of-type {
+  margin-top: 0;
+}
+
 .debug-panel {
   border: 1px dashed var(--color-text-muted);
   border-radius: 0.75rem;

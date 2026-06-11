@@ -25,6 +25,13 @@ function migrate(raw: unknown): Save {
     };
   }
 
+  if (save.schemaVersion < 4) {
+    // Pre-M1.5 saves played a fixed zuryō background — treat them as
+    // Governor's Heir for data completeness. New games pick a class via
+    // the class picker (classId starts null in createInitialSave()).
+    save = { ...save, schemaVersion: 4, classId: save.classId ?? 'governors_heir' };
+  }
+
   return { ...createInitialSave(), ...save, schemaVersion: CURRENT_SAVE_SCHEMA_VERSION };
 }
 

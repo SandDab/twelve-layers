@@ -63,6 +63,16 @@ export const m1NewYear: Scene = {
           effects: [{ kind: 'resource', res: 'composure', delta: 5 }],
           goto: 'm1_newyear_02d',
         },
+        {
+          text:
+            '[Background: The Old Name] Say nothing of titles. Let the chamberlain place the name himself.',
+          ifClass: 'old_name',
+          effects: [
+            { kind: 'attr', attr: 'allure', delta: 1 },
+            { kind: 'favor', npc: 'chamberlain', delta: 1 },
+          ],
+          goto: 'm1_newyear_02e',
+        },
       ],
     },
 
@@ -102,6 +112,17 @@ export const m1NewYear: Scene = {
       body:
         'You bow and step back into the crowd, unremarkable. No one whispers about ' +
         'you. There are worse ways to begin a year — and worse ways to end one.',
+      next: 'm1_newyear_03',
+    },
+
+    m1_newyear_02e: {
+      id: 'm1_newyear_02e',
+      speaker: 'Narrator',
+      body:
+        'You say nothing. The chamberlain, gray-haired and slow to read the roll these ' +
+        'days, looks up at the crest on your sleeve before he reaches your name — and ' +
+        'his pause is not the pause of a man placing a stranger. Whatever else has ' +
+        'changed, the name is still read in this room.',
       next: 'm1_newyear_03',
     },
 

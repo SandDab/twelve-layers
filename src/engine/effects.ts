@@ -1,3 +1,4 @@
+import { computeComposureCap } from '../content/classes';
 import type { Effect, GossipEntry, RippleEntry, Save } from './types';
 
 /** Add `delta` months to a year/month pair, rolling over at 12. */
@@ -20,6 +21,16 @@ function applyEffect(effect: Effect, save: Save): Save {
     case 'resource':
       if (effect.res === 'tokimeki') {
         return { ...save, tokimeki: Math.max(0, save.tokimeki + effect.delta) };
+      }
+      if (effect.res === 'composure') {
+        const cap = computeComposureCap(save.classId);
+        return {
+          ...save,
+          resources: {
+            ...save.resources,
+            composure: Math.max(0, Math.min(cap, save.resources.composure + effect.delta)),
+          },
+        };
       }
       return {
         ...save,

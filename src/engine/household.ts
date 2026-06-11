@@ -1,10 +1,11 @@
+import { CLASSES } from '../content/classes';
 import { getRobe } from '../content/robes';
 import { STAFF_DEFINITIONS } from '../content/staff';
 import { getTokimekiTier } from '../content/tokimekiTiers';
 import { tickCalendar } from './calendar';
 import { addMonths, applyEffects } from './effects';
 import { resolveDueGossip } from './ripples';
-import { BASE_FREE_ACTIONS, type AttributeKey, type Save, type StaffRole } from './types';
+import { BASE_FREE_ACTIONS, type AttributeKey, type ClassId, type Save, type StaffRole } from './types';
 
 export const BASE_INCOME = 20;
 export const TRAIN_COMPOSURE_COST = 10;
@@ -20,12 +21,17 @@ export function seasonOfMonth(month: number): 1 | 2 | 3 | 4 {
   return (Math.floor((month - 1) / 3) + 1) as 1 | 2 | 3 | 4;
 }
 
-/** Monthly koku income: base + steward bonus + Tokimeki tier bonus. */
-export function computeIncome(staff: Record<StaffRole, boolean>, tokimeki: number): number {
+/** Monthly koku income: (base + steward bonus + Tokimeki tier bonus) x class income multiplier. */
+export function computeIncome(
+  staff: Record<StaffRole, boolean>,
+  tokimeki: number,
+  classId: ClassId | null = null,
+): number {
   let income = BASE_INCOME;
   if (staff.steward) income += STAFF_DEFINITIONS.steward.incomeBonus;
   income += getTokimekiTier(tokimeki).incomeBonus;
-  return income;
+  const incomeMult = classId ? CLASSES[classId].incomeMult : 1;
+  return Math.round(income * incomeMult);
 }
 
 /** Free actions granted for the coming month, including Tokimeki tier bonuses. */
@@ -111,7 +117,10 @@ export function applyMonthEnd(save: Save): Save {
   next = applyTokimekiEnvyTrigger(next);
   next = {
     ...next,
-    resources: { ...next.resources, koku: next.resources.koku + computeIncome(next.staff, next.tokimeki) },
+    resources: {
+      ...next.resources,
+      koku: next.resources.koku + computeIncome(next.staff, next.tokimeki, next.classId),
+    },
   };
   next = tickCalendar(next);
   next = resolveDueGossip(next);

@@ -7,6 +7,7 @@ const ATTRIBUTE_KEYS: AttributeKey[] = ['rank', 'charisma', 'allure', 'rhetoric'
 export function DebugPanel() {
   const year = useGameStore((s) => s.year);
   const month = useGameStore((s) => s.month);
+  const classId = useGameStore((s) => s.classId);
   const attributes = useGameStore((s) => s.attributes);
   const tokimekiHistory = useGameStore((s) => s.tokimekiHistory);
   const rippleQueue = useGameStore((s) => s.rippleQueue);
@@ -23,6 +24,11 @@ export function DebugPanel() {
   return (
     <section className="debug-panel">
       <h2>Debug Panel</h2>
+
+      <div className="debug-row">
+        <label>Class</label>
+        <span>{classId ?? '(none yet)'}</span>
+      </div>
 
       <div className="debug-row">
         <label htmlFor="dbg-year">Year</label>

@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { computeComposureCap } from '../content/classes';
 import { getRobe } from '../content/robes';
 import { STAFF_DEFINITIONS } from '../content/staff';
 import { applyEffects } from '../engine/effects';
@@ -8,11 +9,13 @@ import {
   computeTrainGain,
   TRAIN_COMPOSURE_COST,
 } from '../engine/household';
+import { applyClass } from '../engine/newGame';
 import { consumeRipple } from '../engine/ripples';
 import { clearSave, loadSave, writeSave } from '../engine/save';
 import {
   createInitialSave,
   type AttributeKey,
+  type ClassId,
   type Effect,
   type RippleEntry,
   type Save,
@@ -37,11 +40,13 @@ export interface GameState extends Save {
   rest: () => void;
   buyRobe: (robeId: string) => void;
   equipRobe: (robeId: string | null) => void;
+  chooseClass: (classId: ClassId) => void;
   resetSave: () => void;
 }
 
 const SAVE_FIELDS = [
   'schemaVersion',
+  'classId',
   'year',
   'month',
   'tokimeki',
@@ -121,9 +126,10 @@ export const useGameStore = create<GameState>((set) => ({
 
   setComposure: (value) =>
     set((state) => {
+      const cap = computeComposureCap(state.classId);
       const next: Save = {
         ...extractSave(state),
-        resources: { ...state.resources, composure: Math.max(0, Math.min(100, value)) },
+        resources: { ...state.resources, composure: Math.max(0, Math.min(cap, value)) },
       };
       writeSave(next);
       return next;
@@ -223,9 +229,10 @@ export const useGameStore = create<GameState>((set) => ({
       if (state.actionsRemaining <= 0) return state;
       const save = extractSave(state);
       const gain = computeRestGain(save.staff);
+      const cap = computeComposureCap(save.classId);
       const next: Save = {
         ...save,
-        resources: { ...save.resources, composure: Math.min(100, save.resources.composure + gain) },
+        resources: { ...save.resources, composure: Math.min(cap, save.resources.composure + gain) },
         actionsRemaining: state.actionsRemaining - 1,
       };
       writeSave(next);
@@ -255,6 +262,14 @@ export const useGameStore = create<GameState>((set) => ({
         ...extractSave(state),
         wardrobe: { ...state.wardrobe, equipped: robeId },
       };
+      writeSave(next);
+      return next;
+    }),
+
+  chooseClass: (classId) =>
+    set((state) => {
+      if (state.classId !== null) return state;
+      const next = applyClass(extractSave(state), classId);
       writeSave(next);
       return next;
     }),
