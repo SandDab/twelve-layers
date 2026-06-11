@@ -1,0 +1,128 @@
+import { useState } from 'react';
+import { useGameStore } from '../state/gameStore';
+import type { AttributeKey } from '../engine/types';
+
+const ATTRIBUTE_KEYS: AttributeKey[] = ['rank', 'charisma', 'allure', 'rhetoric', 'taste'];
+
+export function DebugPanel() {
+  const year = useGameStore((s) => s.year);
+  const month = useGameStore((s) => s.month);
+  const attributes = useGameStore((s) => s.attributes);
+  const cloutHistory = useGameStore((s) => s.cloutHistory);
+  const rippleQueue = useGameStore((s) => s.rippleQueue);
+  const setMonthYear = useGameStore((s) => s.setMonthYear);
+  const setAttribute = useGameStore((s) => s.setAttribute);
+  const grantKoku = useGameStore((s) => s.grantKoku);
+  const grantClout = useGameStore((s) => s.grantClout);
+  const addRipple = useGameStore((s) => s.addRipple);
+  const resetSave = useGameStore((s) => s.resetSave);
+
+  const [rippleScene, setRippleScene] = useState('m4_aoi_carriage_03');
+  const [rippleMonth, setRippleMonth] = useState(month);
+
+  return (
+    <section className="debug-panel">
+      <h2>Debug Panel</h2>
+
+      <div className="debug-row">
+        <label htmlFor="dbg-year">Year</label>
+        <input
+          id="dbg-year"
+          type="number"
+          min={1}
+          value={year}
+          onChange={(e) => setMonthYear(month, Number(e.target.value))}
+        />
+        <label htmlFor="dbg-month">Month</label>
+        <input
+          id="dbg-month"
+          type="number"
+          min={1}
+          max={12}
+          value={month}
+          onChange={(e) => setMonthYear(Number(e.target.value), year)}
+        />
+      </div>
+
+      {ATTRIBUTE_KEYS.map((attr) => (
+        <div className="debug-row" key={attr}>
+          <label htmlFor={`dbg-attr-${attr}`}>{attr}</label>
+          <input
+            id={`dbg-attr-${attr}`}
+            type="number"
+            min={0}
+            max={100}
+            value={attributes[attr]}
+            onChange={(e) => setAttribute(attr, Number(e.target.value))}
+          />
+        </div>
+      ))}
+
+      <div className="debug-row">
+        <label>Koku</label>
+        <button className="btn" onClick={() => grantKoku(50)}>+50</button>
+        <button className="btn" onClick={() => grantKoku(-50)}>-50</button>
+      </div>
+
+      <div className="debug-row">
+        <label>Clout</label>
+        <button className="btn" onClick={() => grantClout(10)}>+10</button>
+        <button className="btn" onClick={() => grantClout(-10)}>-10</button>
+      </div>
+
+      <div className="debug-row">
+        <label htmlFor="dbg-ripple-month">Ripple @</label>
+        <input
+          id="dbg-ripple-month"
+          type="number"
+          min={1}
+          max={12}
+          value={rippleMonth}
+          onChange={(e) => setRippleMonth(Number(e.target.value))}
+        />
+        <input
+          id="dbg-ripple-scene"
+          type="text"
+          value={rippleScene}
+          onChange={(e) => setRippleScene(e.target.value)}
+        />
+        <button
+          className="btn"
+          onClick={() =>
+            addRipple({ triggerYear: year, triggerMonth: rippleMonth, sceneId: rippleScene })
+          }
+        >
+          Queue
+        </button>
+      </div>
+
+      {rippleQueue.length > 0 && (
+        <div className="debug-row" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+          <label>Ripple queue</label>
+          <ul style={{ margin: 0, paddingLeft: '1.2rem' }}>
+            {rippleQueue.map((r, i) => (
+              <li key={i}>
+                Y{r.triggerYear} M{r.triggerMonth}: {r.sceneId}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {Object.keys(cloutHistory).length > 0 && (
+        <div className="debug-row" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+          <label>Clout history</label>
+          <ul style={{ margin: 0, paddingLeft: '1.2rem' }}>
+            {Object.entries(cloutHistory).map(([y, c]) => (
+              <li key={y}>Year {y}: {c}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="debug-row">
+        <button className="btn" onClick={resetSave}>Reset Save</button>
+      </div>
+    </section>
+  );
+}

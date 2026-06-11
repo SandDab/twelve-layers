@@ -1,0 +1,123 @@
+import { create } from 'zustand';
+import { tickCalendar } from '../engine/calendar';
+import { clearSave, loadSave, writeSave } from '../engine/save';
+import { createInitialSave, type AttributeKey, type RippleEntry, type Save } from '../engine/types';
+
+export interface GameState extends Save {
+  tickMonth: () => void;
+  setMonthYear: (month: number, year: number) => void;
+  setAttribute: (attr: AttributeKey, value: number) => void;
+  grantKoku: (delta: number) => void;
+  grantClout: (delta: number) => void;
+  setComposure: (value: number) => void;
+  setDebug: (debug: boolean) => void;
+  addRipple: (ripple: RippleEntry) => void;
+  resetSave: () => void;
+}
+
+const SAVE_FIELDS = [
+  'schemaVersion',
+  'year',
+  'month',
+  'clout',
+  'cloutHistory',
+  'attributes',
+  'resources',
+  'favors',
+  'flags',
+  'rippleQueue',
+  'debug',
+] as const;
+
+export function extractSave(state: GameState): Save {
+  const save = {} as Record<(typeof SAVE_FIELDS)[number], unknown>;
+  for (const key of SAVE_FIELDS) {
+    save[key] = state[key];
+  }
+  return save as unknown as Save;
+}
+
+export const useGameStore = create<GameState>((set) => ({
+  ...loadSave(),
+
+  tickMonth: () =>
+    set((state) => {
+      const next = tickCalendar(extractSave(state));
+      writeSave(next);
+      return next;
+    }),
+
+  setMonthYear: (month, year) =>
+    set((state) => {
+      const next: Save = {
+        ...extractSave(state),
+        month: Math.min(12, Math.max(1, Math.round(month))),
+        year: Math.max(1, Math.round(year)),
+      };
+      writeSave(next);
+      return next;
+    }),
+
+  setAttribute: (attr, value) =>
+    set((state) => {
+      const next: Save = {
+        ...extractSave(state),
+        attributes: { ...state.attributes, [attr]: value },
+      };
+      writeSave(next);
+      return next;
+    }),
+
+  grantKoku: (delta) =>
+    set((state) => {
+      const next: Save = {
+        ...extractSave(state),
+        resources: { ...state.resources, koku: state.resources.koku + delta },
+      };
+      writeSave(next);
+      return next;
+    }),
+
+  grantClout: (delta) =>
+    set((state) => {
+      const next: Save = {
+        ...extractSave(state),
+        clout: Math.max(0, state.clout + delta),
+      };
+      writeSave(next);
+      return next;
+    }),
+
+  setComposure: (value) =>
+    set((state) => {
+      const next: Save = {
+        ...extractSave(state),
+        resources: { ...state.resources, composure: Math.max(0, Math.min(100, value)) },
+      };
+      writeSave(next);
+      return next;
+    }),
+
+  setDebug: (debug) =>
+    set((state) => {
+      const next: Save = { ...extractSave(state), debug };
+      writeSave(next);
+      return next;
+    }),
+
+  addRipple: (ripple) =>
+    set((state) => {
+      const next: Save = {
+        ...extractSave(state),
+        rippleQueue: [...state.rippleQueue, ripple],
+      };
+      writeSave(next);
+      return next;
+    }),
+
+  resetSave: () =>
+    set(() => {
+      clearSave();
+      return createInitialSave();
+    }),
+}));

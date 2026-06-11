@@ -1,0 +1,223 @@
+/* Base tokens (overridden per-month by useKasanePalette) and the
+   one-thumb portrait layout shell. No component should hardcode a
+   color — everything reads these custom properties. */
+
+:root {
+  --kasane-face: #d65a6e;
+  --kasane-lining: #7a3b46;
+  --color-bg: #fdf3f1;
+  --color-surface: #ffffff;
+  --color-surface-raised: #fbe4e6;
+  --color-text: #3a2226;
+  --color-text-muted: #8a6469;
+  --color-accent: #d65a6e;
+  --color-accent-text: #ffffff;
+  --color-border: #f0cdd1;
+
+  --font-display: 'Shippori Mincho', serif;
+  --font-body: system-ui, -apple-system, 'Hiragino Sans', sans-serif;
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.6s ease, color 0.6s ease;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Portrait app shell, capped to a phone-ish width on larger screens. */
+.app-shell {
+  max-width: 480px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  transition: background-color 0.6s ease;
+}
+
+/* Stage: top ~40%, scene/illustration area, no interactive controls. */
+.app-stage {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  background: var(--color-surface-raised);
+  border-bottom: 1px solid var(--color-border);
+  text-align: center;
+  transition: background-color 0.6s ease, border-color 0.6s ease;
+}
+
+/* Interactive: bottom ~60%, all taps and short-drags live here. */
+.app-interactive {
+  flex: 1 1 60%;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  gap: 1rem;
+  overflow-y: auto;
+}
+
+.month-name-jp {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+}
+
+.month-name-en {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  margin: 0.25rem 0 0;
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+  transition: background-color 0.6s ease, border-color 0.6s ease;
+}
+
+.btn {
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.6rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.btn:active {
+  background: var(--color-surface-raised);
+}
+
+.btn-accent {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
+  font-weight: 600;
+}
+
+.nav-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nav-row .btn {
+  flex: 1;
+  text-align: center;
+}
+
+.nav-row .btn[aria-current='true'] {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
+  font-weight: 600;
+}
+
+.calendar-strip {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.calendar-strip .month-chip {
+  flex: 0 0 auto;
+  min-width: 2.75rem;
+  text-align: center;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.calendar-strip .month-chip.active {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
+  font-weight: 600;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+
+.stat-grid .stat-label {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.stat-grid .stat-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.debug-panel {
+  border: 1px dashed var(--color-text-muted);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.debug-panel h2 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.debug-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.debug-row label {
+  flex: 0 0 5.5rem;
+  color: var(--color-text-muted);
+}
+
+.debug-row input,
+.debug-row select {
+  flex: 1 1 6rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.4rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  min-width: 0;
+}
+
+.debug-row .btn {
+  flex: 0 0 auto;
+  padding: 0.35rem 0.6rem;
+}
