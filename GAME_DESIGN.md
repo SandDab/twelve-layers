@@ -180,6 +180,8 @@ Backlog for later versions: incense competition (kōawase), chrysanthemum festiv
 ### Ikebana
 Vase with 5–7 placement slots; a tray of seasonal stems cycles at the thumb arc. Tap to place, tap placed stem to remove. Score on the heaven–earth–human height triad, seasonal correctness, and negative space (empty slots can be correct). 30–60 seconds. Feeds Taste; used at events as a checked performance ("arrange for the Empress's alcove").
 
+Art note: stem art for prior-month seasonal flowers should appear earlier (e.g. in scene backgrounds or household flavor) so players have visually learned a stem's season before they have to judge it in the mini game.
+
 ### Zen garden raking
 Thumb-drag draws rake furrows around fixed stones on a sand field. No timer. Score on line continuity, coverage ratio, and not crossing your own furrows; generous thresholds — it's a restoration verb, not a test. Restores Composure; gardener staff upgrades pattern options (ripples around stones score bonus).
 
@@ -200,6 +202,7 @@ Hold-and-release timing: hold as clouds pass, release when the moon clears, pair
 - Texture: washi paper grain on panels; vertical text used as accent (titles, chapter cards), horizontal for all reading text.
 - Type: a mincho-style display face (e.g., Shippori Mincho on Google Fonts) for titles, a clean humanist body face for dialogue; both must hold up at mobile sizes.
 - Motion: restrained — sleeve/curtain transitions between scenes, drifting blossom or snow particles per season, nothing bouncy.
+- Seasonal flora as foreshadowing: where scenes reference seasonal plants/flowers, depict them in the art for that month even when not directly interactive. This gives players a passive visual reference for which stems belong to which season ahead of the ikebana mini game (see §10).
 
 ## 13. Tech spec
 
