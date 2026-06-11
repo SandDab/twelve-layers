@@ -113,6 +113,47 @@ button {
   background: var(--color-surface-raised);
 }
 
+.btn:disabled {
+  cursor: not-allowed;
+}
+
+.scene-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.scene-speaker {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.scene-complete-note {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* Card fan: thumb-arc choice list, ~4 visible before scrolling. */
+.choice-fan {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 15.5rem;
+  overflow-y: auto;
+}
+
+.choice-card {
+  white-space: normal;
+}
+
+.choice-card-failed {
+  opacity: 0.5;
+}
+
 .btn-accent {
   background: var(--color-accent);
   color: var(--color-accent-text);

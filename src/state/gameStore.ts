@@ -1,7 +1,15 @@
 import { create } from 'zustand';
 import { tickCalendar } from '../engine/calendar';
+import { applyEffects } from '../engine/effects';
+import { consumeRipple, resolveDueGossip } from '../engine/ripples';
 import { clearSave, loadSave, writeSave } from '../engine/save';
-import { createInitialSave, type AttributeKey, type RippleEntry, type Save } from '../engine/types';
+import {
+  createInitialSave,
+  type AttributeKey,
+  type Effect,
+  type RippleEntry,
+  type Save,
+} from '../engine/types';
 
 export interface GameState extends Save {
   tickMonth: () => void;
@@ -12,6 +20,10 @@ export interface GameState extends Save {
   setComposure: (value: number) => void;
   setDebug: (debug: boolean) => void;
   addRipple: (ripple: RippleEntry) => void;
+  consumeRipple: (ripple: RippleEntry) => void;
+  applyChoiceEffects: (effects: Effect[]) => void;
+  setSceneNode: (sceneId: string, nodeId: string) => void;
+  completeScene: (sceneId: string) => void;
   resetSave: () => void;
 }
 
@@ -26,6 +38,9 @@ const SAVE_FIELDS = [
   'favors',
   'flags',
   'rippleQueue',
+  'pendingGossip',
+  'factionReputation',
+  'sceneProgress',
   'debug',
 ] as const;
 
@@ -42,7 +57,7 @@ export const useGameStore = create<GameState>((set) => ({
 
   tickMonth: () =>
     set((state) => {
-      const next = tickCalendar(extractSave(state));
+      const next = resolveDueGossip(tickCalendar(extractSave(state)));
       writeSave(next);
       return next;
     }),
@@ -110,6 +125,47 @@ export const useGameStore = create<GameState>((set) => ({
       const next: Save = {
         ...extractSave(state),
         rippleQueue: [...state.rippleQueue, ripple],
+      };
+      writeSave(next);
+      return next;
+    }),
+
+  consumeRipple: (ripple) =>
+    set((state) => {
+      const next = consumeRipple(extractSave(state), ripple);
+      writeSave(next);
+      return next;
+    }),
+
+  applyChoiceEffects: (effects) =>
+    set((state) => {
+      const next = applyEffects(effects, extractSave(state));
+      writeSave(next);
+      return next;
+    }),
+
+  setSceneNode: (sceneId, nodeId) =>
+    set((state) => {
+      const next: Save = {
+        ...extractSave(state),
+        sceneProgress: {
+          ...state.sceneProgress,
+          [sceneId]: { currentNode: nodeId, completed: false },
+        },
+      };
+      writeSave(next);
+      return next;
+    }),
+
+  completeScene: (sceneId) =>
+    set((state) => {
+      const existing = state.sceneProgress[sceneId];
+      const next: Save = {
+        ...extractSave(state),
+        sceneProgress: {
+          ...state.sceneProgress,
+          [sceneId]: { currentNode: existing?.currentNode ?? '', completed: true },
+        },
       };
       writeSave(next);
       return next;

@@ -1,0 +1,84 @@
+import { describe, expect, it } from 'vitest';
+import { applyEffects } from './effects';
+import { createInitialSave } from './types';
+
+describe('applyEffects', () => {
+  it('applies an attr effect', () => {
+    const save = applyEffects([{ kind: 'attr', attr: 'rhetoric', delta: 5 }], createInitialSave());
+    expect(save.attributes.rhetoric).toBe(15);
+  });
+
+  it('applies a koku/composure resource effect', () => {
+    const save = applyEffects(
+      [
+        { kind: 'resource', res: 'koku', delta: -20 },
+        { kind: 'resource', res: 'composure', delta: -10 },
+      ],
+      createInitialSave(),
+    );
+    expect(save.resources.koku).toBe(80);
+    expect(save.resources.composure).toBe(90);
+  });
+
+  it('applies a clout resource effect, floored at zero', () => {
+    const base = { ...createInitialSave(), clout: 5 };
+    const save = applyEffects([{ kind: 'resource', res: 'clout', delta: -20 }], base);
+    expect(save.clout).toBe(0);
+  });
+
+  it('applies a favor effect, accumulating per-npc', () => {
+    let save = applyEffects([{ kind: 'favor', npc: 'sharpBrush', delta: 1 }], createInitialSave());
+    save = applyEffects([{ kind: 'favor', npc: 'sharpBrush', delta: 2 }], save);
+    expect(save.favors.sharpBrush).toBe(3);
+  });
+
+  it('applies a flag effect', () => {
+    const save = applyEffects([{ kind: 'flag', flag: 'wore_kobai', value: true }], createInitialSave());
+    expect(save.flags.wore_kobai).toBe(true);
+  });
+
+  it('queues a ripple for later this year when the target month is ahead', () => {
+    const base = { ...createInitialSave(), year: 1, month: 1 };
+    const save = applyEffects(
+      [{ kind: 'ripple', triggerMonth: 4, sceneId: 'm4_newyear_echo_01' }],
+      base,
+    );
+    expect(save.rippleQueue).toEqual([
+      { triggerYear: 1, triggerMonth: 4, sceneId: 'm4_newyear_echo_01', ifFlags: undefined },
+    ]);
+  });
+
+  it('queues a ripple for next year when the target month has already passed', () => {
+    const base = { ...createInitialSave(), year: 1, month: 8 };
+    const save = applyEffects(
+      [{ kind: 'ripple', triggerMonth: 3, sceneId: 'm3_echo' }],
+      base,
+    );
+    expect(save.rippleQueue[0]).toMatchObject({ triggerYear: 2, triggerMonth: 3 });
+  });
+
+  it('queues delayed gossip with rollover into the next year', () => {
+    const base = { ...createInitialSave(), year: 1, month: 12 };
+    const save = applyEffects(
+      [{ kind: 'gossip', tag: 'wore_autumn_in_spring', factionDeltas: { rivalHouses: -2 }, delayMonths: 2 }],
+      base,
+    );
+    expect(save.pendingGossip).toEqual([
+      { triggerYear: 2, triggerMonth: 2, tag: 'wore_autumn_in_spring', factionDeltas: { rivalHouses: -2 } },
+    ]);
+  });
+
+  it('threads multiple effects through in order', () => {
+    const save = applyEffects(
+      [
+        { kind: 'attr', attr: 'charisma', delta: 2 },
+        { kind: 'resource', res: 'clout', delta: 5 },
+        { kind: 'flag', flag: 'greeted_chamberlain', value: true },
+      ],
+      createInitialSave(),
+    );
+    expect(save.attributes.charisma).toBe(12);
+    expect(save.clout).toBe(5);
+    expect(save.flags.greeted_chamberlain).toBe(true);
+  });
+});

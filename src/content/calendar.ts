@@ -6,10 +6,16 @@ export type AnchorEvent = {
   month: number;
   name: string;
   focus: string;
+  sceneId?: string;
 };
 
 export const ANCHOR_EVENTS: AnchorEvent[] = [
-  { month: 1, name: 'New Year Court Audience', focus: 'Tutorial: checks, Rank gates, first faction contacts' },
+  {
+    month: 1,
+    name: 'New Year Court Audience',
+    focus: 'Tutorial: checks, Rank gates, first faction contacts',
+    sceneId: 'm1_new_year',
+  },
   { month: 3, name: 'Cherry-Blossom Banquet & Utaawase', focus: 'Poem builder debut; public win/lose with gossip stakes' },
   { month: 4, name: 'Aoi Matsuri', focus: 'The carriage-place dispute — every option costs someone' },
   { month: 7, name: 'Tanabata', focus: 'Romance spotlight; poem exchanges accelerate' },

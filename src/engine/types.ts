@@ -12,19 +12,33 @@ export type Resources = {
 
 export type Check = { attr: AttributeKey; min: number };
 
+export type FactionId = 'regent' | 'rivalHouses' | 'imperial' | 'clergy';
+
 export type Effect =
   | { kind: 'attr'; attr: AttributeKey; delta: number }
   | { kind: 'resource'; res: 'koku' | 'composure' | 'clout'; delta: number }
   | { kind: 'favor'; npc: string; delta: number }
   | { kind: 'flag'; flag: string; value: boolean }
   | { kind: 'ripple'; triggerMonth: number; sceneId: string; ifFlags?: string[] }
-  | { kind: 'gossip'; tag: string; factionDeltas: Record<string, number>; delayMonths: 1 | 2 };
+  | { kind: 'gossip'; tag: string; factionDeltas: Partial<Record<FactionId, number>>; delayMonths: 1 | 2 };
 
 export type RippleEntry = {
   triggerYear: number;
   triggerMonth: number;
   sceneId: string;
   ifFlags?: string[];
+};
+
+export type GossipEntry = {
+  triggerYear: number;
+  triggerMonth: number;
+  tag: string;
+  factionDeltas: Partial<Record<FactionId, number>>;
+};
+
+export type SceneProgress = {
+  currentNode: string;
+  completed: boolean;
 };
 
 export const CURRENT_SAVE_SCHEMA_VERSION = 1;
@@ -42,8 +56,18 @@ export type Save = {
   favors: Record<string, number>;
   flags: Record<string, boolean>;
   rippleQueue: RippleEntry[];
+  pendingGossip: GossipEntry[];
+  factionReputation: Record<FactionId, number>;
+  sceneProgress: Record<string, SceneProgress>;
 
   debug: boolean;
+};
+
+export const DEFAULT_FACTION_REPUTATION: Record<FactionId, number> = {
+  regent: 0,
+  rivalHouses: 0,
+  imperial: 0,
+  clergy: 0,
 };
 
 export const DEFAULT_ATTRIBUTES: Attributes = {
@@ -71,6 +95,9 @@ export function createInitialSave(): Save {
     favors: {},
     flags: {},
     rippleQueue: [],
+    pendingGossip: [],
+    factionReputation: { ...DEFAULT_FACTION_REPUTATION },
+    sceneProgress: {},
     debug: false,
   };
 }
