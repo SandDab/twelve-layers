@@ -40,6 +40,7 @@ export interface GameState extends Save {
   completeScene: (sceneId: string) => void;
   hireStaff: (role: StaffRole) => void;
   trainAttribute: (attr: AttributeKey) => void;
+  practiceIkebana: (tasteDelta: number) => void;
   rest: () => void;
   buyRobe: (robeId: string) => void;
   equipRobe: (robeId: string | null) => void;
@@ -235,6 +236,17 @@ export const useGameStore = create<GameState>((set) => ({
           ],
           save,
         ),
+        actionsRemaining: state.actionsRemaining - 1,
+      };
+      writeSave(next);
+      return next;
+    }),
+
+  practiceIkebana: (tasteDelta) =>
+    set((state) => {
+      if (state.actionsRemaining <= 0) return state;
+      const next: Save = {
+        ...applyEffects([{ kind: 'attr', attr: 'taste', delta: tasteDelta }], extractSave(state)),
         actionsRemaining: state.actionsRemaining - 1,
       };
       writeSave(next);

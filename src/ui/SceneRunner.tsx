@@ -1,6 +1,8 @@
 import { resolveCheck } from '../engine/checks';
+import type { IkebanaScoreResult } from '../engine/ikebana';
 import { getSceneNode, isSceneEnd, type Scene } from '../engine/scene';
 import type { Choice } from '../engine/scene';
+import { IkebanaGame } from '../minigames/ikebana/IkebanaGame';
 import { useGameStore } from '../state/gameStore';
 
 type SceneRunnerProps = {
@@ -12,6 +14,7 @@ type SceneRunnerProps = {
 export function SceneRunner({ scene, onComplete }: SceneRunnerProps) {
   const attributes = useGameStore((s) => s.attributes);
   const classId = useGameStore((s) => s.classId);
+  const month = useGameStore((s) => s.month);
   const progress = useGameStore((s) => s.sceneProgress[scene.id]);
   const setSceneNode = useGameStore((s) => s.setSceneNode);
   const completeScene = useGameStore((s) => s.completeScene);
@@ -49,10 +52,19 @@ export function SceneRunner({ scene, onComplete }: SceneRunnerProps) {
     }
   }
 
+  function submitIkebana(result: IkebanaScoreResult) {
+    const { ikebana } = node;
+    if (!ikebana) return;
+    applyChoiceEffects([{ kind: 'attr', attr: 'taste', delta: result.tasteDelta }]);
+    goto(result.score >= ikebana.threshold ? ikebana.successNode : ikebana.failNode);
+  }
+
   return (
     <section className="card scene-card">
       <p className="scene-speaker">{node.speaker ?? scene.title}</p>
       <p>{node.body}</p>
+
+      {node.ikebana && <IkebanaGame month={month} onSubmit={submitIkebana} />}
 
       {node.next && (
         <button className="btn btn-accent" onClick={() => goto(node.next!)}>

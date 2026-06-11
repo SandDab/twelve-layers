@@ -39,6 +39,15 @@ export function lintScenes(scenes: Record<string, Scene>): string[] {
         errors.push(`${scene.id}/${node.id}: next "${node.next}" does not exist`);
       }
 
+      if (node.ikebana) {
+        if (!scene.nodes[node.ikebana.successNode]) {
+          errors.push(`${scene.id}/${node.id}: ikebana successNode "${node.ikebana.successNode}" does not exist`);
+        }
+        if (!scene.nodes[node.ikebana.failNode]) {
+          errors.push(`${scene.id}/${node.id}: ikebana failNode "${node.ikebana.failNode}" does not exist`);
+        }
+      }
+
       for (const choice of node.choices ?? []) {
         if (!scene.nodes[choice.goto]) {
           errors.push(`${scene.id}/${node.id}: goto "${choice.goto}" does not exist`);

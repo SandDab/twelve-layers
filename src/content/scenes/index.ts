@@ -8,11 +8,13 @@ import {
 } from './kanzashiDelivery';
 import { m1NewYear } from './m1NewYear';
 import { m4NewYearEcho } from './m4NewYearEcho';
+import { m8Tsukimi } from './m8Tsukimi';
 import { oldNameDebt } from './oldNameDebt';
 
 export const SCENES: Record<string, Scene> = {
   [m1NewYear.id]: m1NewYear,
   [m4NewYearEcho.id]: m4NewYearEcho,
+  [m8Tsukimi.id]: m8Tsukimi,
   [envyRival.id]: envyRival,
   [oldNameDebt.id]: oldNameDebt,
   [kanzashiKobaiDelivery.id]: kanzashiKobaiDelivery,

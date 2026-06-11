@@ -267,6 +267,45 @@ button {
   margin-top: 0;
 }
 
+.ikebana-game {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.ikebana-vase {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+}
+
+.ikebana-slot {
+  min-height: 2.75rem;
+  text-align: center;
+  font-size: 0.75rem;
+  padding: 0.4rem;
+  background: var(--color-surface-raised);
+}
+
+.ikebana-slot-filled {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
+}
+
+.ikebana-tray {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+}
+
+.ikebana-stem {
+  flex: 0 0 auto;
+  font-size: 0.8rem;
+  padding: 0.5rem 0.75rem;
+}
+
 .debug-panel {
   border: 1px dashed var(--color-text-muted);
   border-radius: 0.75rem;

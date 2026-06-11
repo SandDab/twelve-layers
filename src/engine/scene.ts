@@ -13,12 +13,25 @@ export type Choice = {
   goto: NodeId;
 };
 
+/**
+ * A checked ikebana performance (GAME_DESIGN.md §10): the player plays
+ * the mini-game inline, then the scene branches on whether the score
+ * met the threshold. The Taste effect from the score is applied either
+ * way.
+ */
+export type IkebanaPerformance = {
+  threshold: number;
+  successNode: NodeId;
+  failNode: NodeId;
+};
+
 export type SceneNode = {
   id: NodeId;
   speaker?: string;
   body: string;
   choices?: Choice[];
   next?: NodeId;
+  ikebana?: IkebanaPerformance;
 };
 
 export type Scene = {
@@ -37,5 +50,5 @@ export function getSceneNode(scene: Scene, nodeId: NodeId): SceneNode {
 }
 
 export function isSceneEnd(node: SceneNode): boolean {
-  return !node.next && (!node.choices || node.choices.length === 0);
+  return !node.next && !node.ikebana && (!node.choices || node.choices.length === 0);
 }

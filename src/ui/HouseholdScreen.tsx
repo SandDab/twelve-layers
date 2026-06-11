@@ -1,9 +1,11 @@
+import { useState } from 'react';
 import { KANZASHI, KANZASHI_IDS } from '../content/kanzashi';
 import { ROBES } from '../content/robes';
 import { STAFF_DEFINITIONS } from '../content/staff';
 import { getTokimekiTier } from '../content/tokimekiTiers';
 import { computeRestGain, computeTrainGain, seasonOfMonth, TRAIN_COMPOSURE_COST } from '../engine/household';
 import { STAFF_ROLES, type AttributeKey } from '../engine/types';
+import { IkebanaGame } from '../minigames/ikebana/IkebanaGame';
 import { useGameStore } from '../state/gameStore';
 
 const ATTRIBUTE_LABELS: Record<AttributeKey, string> = {
@@ -38,11 +40,15 @@ export function HouseholdScreen() {
   const rest = useGameStore((s) => s.rest);
   const buyRobe = useGameStore((s) => s.buyRobe);
   const equipRobe = useGameStore((s) => s.equipRobe);
+  const practiceIkebana = useGameStore((s) => s.practiceIkebana);
+
+  const [showIkebana, setShowIkebana] = useState(false);
 
   const tier = getTokimekiTier(tokimeki);
   const currentSeason = seasonOfMonth(month);
   const canTrain = actionsRemaining > 0 && resources.composure >= TRAIN_COMPOSURE_COST;
   const canRest = actionsRemaining > 0;
+  const canArrange = actionsRemaining > 0;
 
   return (
     <>
@@ -92,10 +98,23 @@ export function HouseholdScreen() {
           <button className="btn" disabled={!canRest} onClick={() => rest()}>
             Rest (+{computeRestGain(staff)} Composure)
           </button>
+          <button className="btn" disabled={!canArrange} onClick={() => setShowIkebana(true)}>
+            Arrange Ikebana
+          </button>
         </div>
         <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>
           Training costs {TRAIN_COMPOSURE_COST} Composure.
         </p>
+        {showIkebana && (
+          <IkebanaGame
+            month={month}
+            onCancel={() => setShowIkebana(false)}
+            onSubmit={(result) => {
+              practiceIkebana(result.tasteDelta);
+              setShowIkebana(false);
+            }}
+          />
+        )}
       </section>
 
       <section className="card">
