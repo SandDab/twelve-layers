@@ -16,7 +16,7 @@ export interface GameState extends Save {
   setMonthYear: (month: number, year: number) => void;
   setAttribute: (attr: AttributeKey, value: number) => void;
   grantKoku: (delta: number) => void;
-  grantClout: (delta: number) => void;
+  grantTokimeki: (delta: number) => void;
   setComposure: (value: number) => void;
   setDebug: (debug: boolean) => void;
   addRipple: (ripple: RippleEntry) => void;
@@ -31,8 +31,8 @@ const SAVE_FIELDS = [
   'schemaVersion',
   'year',
   'month',
-  'clout',
-  'cloutHistory',
+  'tokimeki',
+  'tokimekiHistory',
   'attributes',
   'resources',
   'favors',
@@ -93,11 +93,11 @@ export const useGameStore = create<GameState>((set) => ({
       return next;
     }),
 
-  grantClout: (delta) =>
+  grantTokimeki: (delta) =>
     set((state) => {
       const next: Save = {
         ...extractSave(state),
-        clout: Math.max(0, state.clout + delta),
+        tokimeki: Math.max(0, state.tokimeki + delta),
       };
       writeSave(next);
       return next;

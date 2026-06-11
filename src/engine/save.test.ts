@@ -18,7 +18,7 @@ describe('loadSave / writeSave', () => {
       ...createInitialSave(),
       year: 2,
       month: 5,
-      clout: 33,
+      tokimeki: 33,
       attributes: { rank: 10, charisma: 25, allure: 25, rhetoric: 25, taste: 25 },
     };
 
@@ -45,12 +45,12 @@ describe('loadSave / writeSave', () => {
 });
 
 describe('save/load round-trip across a year boundary', () => {
-  it('persists year rollover and clout reset through localStorage', () => {
+  it('persists year rollover and tokimeki reset through localStorage', () => {
     const beforeRollover = {
       ...createInitialSave(),
       year: 1,
       month: 12,
-      clout: 77,
+      tokimeki: 77,
       resources: { koku: 500, composure: 60 },
     };
     writeSave(beforeRollover);
@@ -64,8 +64,36 @@ describe('save/load round-trip across a year boundary', () => {
     const reloaded = loadSave();
     expect(reloaded.year).toBe(2);
     expect(reloaded.month).toBe(1);
-    expect(reloaded.clout).toBe(0);
-    expect(reloaded.cloutHistory[1]).toBe(77);
+    expect(reloaded.tokimeki).toBe(0);
+    expect(reloaded.tokimekiHistory[1]).toBe(77);
     expect(reloaded.resources).toEqual({ koku: 500, composure: 60 });
+  });
+});
+
+describe('schema migration', () => {
+  it('migrates a v1 save with clout fields to v2 tokimeki fields', () => {
+    const v1Save = {
+      schemaVersion: 1,
+      year: 2,
+      month: 5,
+      clout: 42,
+      cloutHistory: { 1: 99 },
+      attributes: { rank: 0, charisma: 10, allure: 10, rhetoric: 10, taste: 10 },
+      resources: { koku: 100, composure: 100 },
+      favors: {},
+      flags: {},
+      rippleQueue: [],
+      pendingGossip: [],
+      factionReputation: { regent: 0, rivalHouses: 0, imperial: 0, clergy: 0 },
+      sceneProgress: {},
+      debug: false,
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(v1Save));
+
+    const loaded = loadSave();
+    expect(loaded.schemaVersion).toBe(CURRENT_SAVE_SCHEMA_VERSION);
+    expect(loaded.tokimeki).toBe(42);
+    expect(loaded.tokimekiHistory).toEqual({ 1: 99 });
+    expect((loaded as unknown as { clout?: number }).clout).toBeUndefined();
   });
 });

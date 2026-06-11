@@ -34,7 +34,7 @@ export const m1NewYear: Scene = {
           check: { attr: 'charisma', min: 15 },
           effects: [
             { kind: 'attr', attr: 'charisma', delta: 2 },
-            { kind: 'resource', res: 'clout', delta: 5 },
+            { kind: 'resource', res: 'tokimeki', delta: 5 },
           ],
           goto: 'm1_newyear_02a',
         },
@@ -52,7 +52,7 @@ export const m1NewYear: Scene = {
           check: { attr: 'taste', min: 15 },
           effects: [
             { kind: 'attr', attr: 'taste', delta: 2 },
-            { kind: 'resource', res: 'clout', delta: 3 },
+            { kind: 'resource', res: 'tokimeki', delta: 3 },
             { kind: 'flag', flag: 'wore_kobai_at_new_year', value: true },
             { kind: 'ripple', triggerMonth: 4, sceneId: 'm4_newyear_echo_01' },
           ],
@@ -118,7 +118,7 @@ export const m1NewYear: Scene = {
           check: { attr: 'rhetoric', min: 40 },
           effects: [
             { kind: 'attr', attr: 'rhetoric', delta: 3 },
-            { kind: 'resource', res: 'clout', delta: 8 },
+            { kind: 'resource', res: 'tokimeki', delta: 8 },
             { kind: 'favor', npc: 'sharpBrush', delta: 1 },
           ],
           goto: 'm1_newyear_end',

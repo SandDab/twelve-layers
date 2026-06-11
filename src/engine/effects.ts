@@ -18,8 +18,8 @@ function applyEffect(effect: Effect, save: Save): Save {
       };
 
     case 'resource':
-      if (effect.res === 'clout') {
-        return { ...save, clout: Math.max(0, save.clout + effect.delta) };
+      if (effect.res === 'tokimeki') {
+        return { ...save, tokimeki: Math.max(0, save.tokimeki + effect.delta) };
       }
       return {
         ...save,

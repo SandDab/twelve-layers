@@ -20,10 +20,10 @@ describe('applyEffects', () => {
     expect(save.resources.composure).toBe(90);
   });
 
-  it('applies a clout resource effect, floored at zero', () => {
-    const base = { ...createInitialSave(), clout: 5 };
-    const save = applyEffects([{ kind: 'resource', res: 'clout', delta: -20 }], base);
-    expect(save.clout).toBe(0);
+  it('applies a tokimeki resource effect, floored at zero', () => {
+    const base = { ...createInitialSave(), tokimeki: 5 };
+    const save = applyEffects([{ kind: 'resource', res: 'tokimeki', delta: -20 }], base);
+    expect(save.tokimeki).toBe(0);
   });
 
   it('applies a favor effect, accumulating per-npc', () => {
@@ -72,13 +72,13 @@ describe('applyEffects', () => {
     const save = applyEffects(
       [
         { kind: 'attr', attr: 'charisma', delta: 2 },
-        { kind: 'resource', res: 'clout', delta: 5 },
+        { kind: 'resource', res: 'tokimeki', delta: 5 },
         { kind: 'flag', flag: 'greeted_chamberlain', value: true },
       ],
       createInitialSave(),
     );
     expect(save.attributes.charisma).toBe(12);
-    expect(save.clout).toBe(5);
+    expect(save.tokimeki).toBe(5);
     expect(save.flags.greeted_chamberlain).toBe(true);
   });
 });

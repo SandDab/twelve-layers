@@ -8,12 +8,12 @@ export function DebugPanel() {
   const year = useGameStore((s) => s.year);
   const month = useGameStore((s) => s.month);
   const attributes = useGameStore((s) => s.attributes);
-  const cloutHistory = useGameStore((s) => s.cloutHistory);
+  const tokimekiHistory = useGameStore((s) => s.tokimekiHistory);
   const rippleQueue = useGameStore((s) => s.rippleQueue);
   const setMonthYear = useGameStore((s) => s.setMonthYear);
   const setAttribute = useGameStore((s) => s.setAttribute);
   const grantKoku = useGameStore((s) => s.grantKoku);
-  const grantClout = useGameStore((s) => s.grantClout);
+  const grantTokimeki = useGameStore((s) => s.grantTokimeki);
   const addRipple = useGameStore((s) => s.addRipple);
   const resetSave = useGameStore((s) => s.resetSave);
 
@@ -65,9 +65,9 @@ export function DebugPanel() {
       </div>
 
       <div className="debug-row">
-        <label>Clout</label>
-        <button className="btn" onClick={() => grantClout(10)}>+10</button>
-        <button className="btn" onClick={() => grantClout(-10)}>-10</button>
+        <label>Tokimeki</label>
+        <button className="btn" onClick={() => grantTokimeki(10)}>+10</button>
+        <button className="btn" onClick={() => grantTokimeki(-10)}>-10</button>
       </div>
 
       <div className="debug-row">
@@ -109,11 +109,11 @@ export function DebugPanel() {
         </div>
       )}
 
-      {Object.keys(cloutHistory).length > 0 && (
+      {Object.keys(tokimekiHistory).length > 0 && (
         <div className="debug-row" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-          <label>Clout history</label>
+          <label>Tokimeki history</label>
           <ul style={{ margin: 0, paddingLeft: '1.2rem' }}>
-            {Object.entries(cloutHistory).map(([y, c]) => (
+            {Object.entries(tokimekiHistory).map(([y, c]) => (
               <li key={y}>Year {y}: {c}</li>
             ))}
           </ul>

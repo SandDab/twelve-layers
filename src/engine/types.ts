@@ -16,7 +16,7 @@ export type FactionId = 'regent' | 'rivalHouses' | 'imperial' | 'clergy';
 
 export type Effect =
   | { kind: 'attr'; attr: AttributeKey; delta: number }
-  | { kind: 'resource'; res: 'koku' | 'composure' | 'clout'; delta: number }
+  | { kind: 'resource'; res: 'koku' | 'composure' | 'tokimeki'; delta: number }
   | { kind: 'favor'; npc: string; delta: number }
   | { kind: 'flag'; flag: string; value: boolean }
   | { kind: 'ripple'; triggerMonth: number; sceneId: string; ifFlags?: string[] }
@@ -41,14 +41,14 @@ export type SceneProgress = {
   completed: boolean;
 };
 
-export const CURRENT_SAVE_SCHEMA_VERSION = 1;
+export const CURRENT_SAVE_SCHEMA_VERSION = 2;
 
 export type Save = {
   schemaVersion: number;
   year: number;
   month: number; // 1-12
-  clout: number; // resets to 0 at New Year (month 12 -> 1 rollover)
-  cloutHistory: Record<number, number>; // year -> clout at year-end, for jimoku math
+  tokimeki: number; // resets to 0 at New Year (month 12 -> 1 rollover)
+  tokimekiHistory: Record<number, number>; // year -> tokimeki at year-end, for jimoku math
 
   attributes: Attributes;
   resources: Resources;
@@ -88,8 +88,8 @@ export function createInitialSave(): Save {
     schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
     year: 1,
     month: 1,
-    clout: 0,
-    cloutHistory: {},
+    tokimeki: 0,
+    tokimekiHistory: {},
     attributes: { ...DEFAULT_ATTRIBUTES },
     resources: { ...DEFAULT_RESOURCES },
     favors: {},

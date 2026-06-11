@@ -11,7 +11,7 @@ const ATTRIBUTE_LABELS: Record<string, string> = {
 export function HouseholdScreen() {
   const attributes = useGameStore((s) => s.attributes);
   const resources = useGameStore((s) => s.resources);
-  const clout = useGameStore((s) => s.clout);
+  const tokimeki = useGameStore((s) => s.tokimeki);
   const tickMonth = useGameStore((s) => s.tickMonth);
 
   return (
@@ -32,8 +32,8 @@ export function HouseholdScreen() {
           <div className="stat-value">{resources.composure}</div>
         </div>
         <div>
-          <div className="stat-label">Clout (this year)</div>
-          <div className="stat-value">{clout}</div>
+          <div className="stat-label">Tokimeki (this year)</div>
+          <div className="stat-value">{tokimeki}</div>
         </div>
         {Object.entries(attributes).map(([key, value]) => (
           <div key={key}>
