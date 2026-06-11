@@ -13,20 +13,23 @@ Heian-court dating sim / household tycoon. Mobile web, portrait, one-thumb. The 
 3. **Checks are threshold-deterministic** (FNV-style, no dice). The drama lives in delayed consequences (ripple queue), not RNG.
 4. **Success ≠ safe.** When writing content, every checked option that "wins" the moment should be capable of costing something later. The Aoi Matsuri carriage scene is the reference standard.
 5. **The kasane palette drives all UI color.** No hardcoded hex in components — everything flows from the current month's palette tokens in `src/styles/`.
-6. **Multi-year from day one.** The save schema carries a year index; everything persists across years except Clout, which zeroes at each New Year. No engine code may assume a single-year game, even though v0.1 ships year-1 content only.
+6. **Multi-year from day one.** The save schema carries a year index; everything persists across years except Tokimeki, which zeroes at each New Year. No engine code may assume a single-year game, even though v0.1 ships year-1 content only.
 7. **Poem fragments carry all four language fields** (`jp`, `kana`, `romaji`, `en`) at authoring time, no exceptions. Romaji mode ships in M4; Gloss/Immersion modes in M6 are UI-only work because the content is already layered.
 8. **Tone ceiling (confirmed).** Lighthearted overall; player choices steer threads toward satire or melancholy. Worst allowable outcomes are bittersweet (exile, estrangement, unconsummated longing) — no on-screen death or cruelty.
 
 ## Build order
-Work milestones M0→M6 exactly as specified in GAME_DESIGN.md §14, one milestone per session unless told otherwise. Each milestone has acceptance criteria — demo them (dev server + a written checklist of criteria met) before moving on. Do not pull future-milestone features forward.
+Work milestones M0→M6 (including M1.5, the class picker) exactly as specified in GAME_DESIGN.md §14, one milestone per session unless told otherwise. Each milestone has acceptance criteria — demo them (dev server + a written checklist of criteria met) before moving on. Do not pull future-milestone features forward.
 
 ## Testing
-- Vitest unit tests required for: check resolver, effects pipeline, ripple queue, calendar tick (including year rollover + Clout reset), save/load round-trip across a year boundary, kasane season lookup, Clout benefit tiers. These are the engine's spine; UI can be eyeballed, the engine cannot.
-- Add a `debug` flag in the store that exposes a dev panel: set month/year, set attributes, fire ripples, grant koku/Clout. Build this in M0 — it pays for itself immediately.
+- Vitest unit tests required for: check resolver, effects pipeline, ripple queue, calendar tick (including year rollover + Tokimeki reset), save/load round-trip across a year boundary, kasane season lookup, Tokimeki benefit tiers. These are the engine's spine; UI can be eyeballed, the engine cannot.
+- Add a `debug` flag in the store that exposes a dev panel: set month/year, set attributes, fire ripples, grant koku/Tokimeki. Build this in M0 — it pays for itself immediately.
 
 ## Content authoring conventions
 - Scene IDs: `m{month}_{event}_{node}` (e.g., `m4_aoi_carriage_03`).
-- Every `ripple` effect must reference a scene that exists or a TODO stub scene — never a dangling ID. Add a content-lint script (M1) that validates all `goto`/`sceneId` references, check attribute names, and that every poem fragment has all four language fields populated.
+- Every `ripple` effect must reference a scene that exists or a TODO stub scene — never a dangling ID. Add a content-lint script (M1) that validates all `goto`/`sceneId` references, check attribute names, that every poem fragment has all four language fields populated, and that every ClassDef's attributes sum to exactly 100.
+- Classes are content (`src/content/classes/`), not code. Balance invariants that must never break: equal 100-point attribute totals, exactly one strong lane per class, exactly one liability per class, no class locks a romance route. Numbers (Koku multipliers, Composure caps, gossip multipliers, debt size) are tunables — change freely in playtest; invariants are not.
+- `[Background: X]` dialogue options: max ~2 per anchor event, never the only good option in a scene, and they should color outcomes rather than trivially win them.
+- Kanzashi theme tags (`principle`, `restraint`, `alignment`, `grace`) are invisible metadata on existing choices — never surfaced in choice text, never a labeled "item opportunity." Tag honestly: the choice must genuinely embody the theme on its own terms, including its costs (a `restraint` choice should still cost something to choose). Every anchor event needs at least one choice per tag; content-lint should verify this. Kanzashi are never purchasable — no shop, no Koku path, no exceptions.
 - Poem fragments carry `season`, `imagery` tags; recipient NPC `tastes` arrays match against those tags.
 - Writing register: restrained, concrete, period-flavored but readable. No "thee/thou." Emotion through gesture and object (sleeves, screens, ink quality), not stated feelings. Baseline is light court comedy; satire and melancholy enter through the *player's chosen options*, not the narration — write choice sets so both flavors are usually on the menu. The Sharp Brush skews witty, The Faded Branch skews wistful, but the player picks the register.
 - All court figures are fictional. Period-realistic names and offices; no historical persons.
