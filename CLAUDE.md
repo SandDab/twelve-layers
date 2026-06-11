@@ -33,6 +33,7 @@ Work milestones M0→M6 (including M1.5, the class picker) exactly as specified 
 - Poem fragments carry `season`, `imagery` tags; recipient NPC `tastes` arrays match against those tags.
 - Writing register: restrained, concrete, period-flavored but readable. No "thee/thou." Emotion through gesture and object (sleeves, screens, ink quality), not stated feelings. Baseline is light court comedy; satire and melancholy enter through the *player's chosen options*, not the narration — write choice sets so both flavors are usually on the menu. The Sharp Brush skews witty, The Faded Branch skews wistful, but the player picks the register.
 - All court figures are fictional. Period-realistic names and offices; no historical persons.
+- **No em dashes or en dashes** in scene `body` text or choice `text` (personal style preference). Use commas, periods, parentheses, or hyphens instead. `lintNoEmDashes` in `src/content/lint.ts` checks for this.
 
 ## Visual direction (summary — full version in GAME_DESIGN.md §12)
 Yamato-e: roofless oblique interiors, hikime-kagibana stylized faces, washi texture, mincho display type, restrained motion. Placeholder art is fine through M5 — but placeholders must already respect the palette tokens and layout so the art pass is a swap, not a refactor.

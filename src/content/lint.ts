@@ -196,3 +196,28 @@ export function lintPoemFragments(fragments: PoemFragmentLike[]): string[] {
 
   return errors;
 }
+
+/**
+ * Validate that no scene text uses em dashes or en dashes (CLAUDE.md
+ * style guide: hyphens, commas, periods, or parentheses only).
+ */
+export function lintNoEmDashes(scenes: Record<string, Scene>): string[] {
+  const errors: string[] = [];
+  const dashPattern = /[–—]/;
+
+  for (const scene of Object.values(scenes)) {
+    for (const node of Object.values(scene.nodes)) {
+      if (dashPattern.test(node.body)) {
+        errors.push(`${scene.id}/${node.id}: body contains an em dash or en dash`);
+      }
+
+      for (const choice of node.choices ?? []) {
+        if (dashPattern.test(choice.text)) {
+          errors.push(`${scene.id}/${node.id}: choice text "${choice.text}" contains an em dash or en dash`);
+        }
+      }
+    }
+  }
+
+  return errors;
+}
