@@ -13,9 +13,6 @@ import { m7Tanabata } from './m7Tanabata';
 import { m8Tsukimi } from './m8Tsukimi';
 import { m11Gosechi } from './m11Gosechi';
 import { oldNameDebt } from './oldNameDebt';
-import { romanceFadedBranchCurtain } from './romanceFadedBranchCurtain';
-import { romanceSequesteredHeirCurtain } from './romanceSequesteredHeirCurtain';
-import { romanceSharpBrushCurtain } from './romanceSharpBrushCurtain';
 
 export const SCENES: Record<string, Scene> = {
   [m1NewYear.id]: m1NewYear,
@@ -30,9 +27,6 @@ export const SCENES: Record<string, Scene> = {
   [kanzashiTsukikageDelivery.id]: kanzashiTsukikageDelivery,
   [kanzashiFujiDelivery.id]: kanzashiFujiDelivery,
   [kanzashiSangoDelivery.id]: kanzashiSangoDelivery,
-  [romanceSequesteredHeirCurtain.id]: romanceSequesteredHeirCurtain,
-  [romanceSharpBrushCurtain.id]: romanceSharpBrushCurtain,
-  [romanceFadedBranchCurtain.id]: romanceFadedBranchCurtain,
 };
 
 export function getScene(id: string): Scene | undefined {

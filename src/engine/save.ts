@@ -55,6 +55,17 @@ function migrate(raw: unknown): Save {
     save = { ...save, schemaVersion: 8 };
   }
 
+  if (save.schemaVersion < 9) {
+    // v9: romance reworked from the old fixed 3-candidate cast to the
+    // v0.6 §13 shape (Record<loveInterestId, {stage, interest, closed,
+    // introFired}>). Progress against the old cast doesn't map to the
+    // new roster, so it's dropped; the createInitialSave() merge below
+    // fills romance: {}.
+    const { romance, ...rest } = save as Save & { romance?: unknown };
+    void romance;
+    save = { ...rest, schemaVersion: 9 } as Save;
+  }
+
   return { ...createInitialSave(), ...save, schemaVersion: CURRENT_SAVE_SCHEMA_VERSION };
 }
 

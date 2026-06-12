@@ -11,7 +11,6 @@ import {
   lintScenes,
   lintThemeTagCoverage,
 } from './lint';
-import { CANDIDATE_LIST } from './npcs';
 import { POEM_FRAGMENTS } from './poems';
 import { SCENES } from './scenes';
 
@@ -292,10 +291,6 @@ describe('lintNoEmDashes', () => {
 });
 
 describe('lintCandidates', () => {
-  it('passes for the registered candidate roster', () => {
-    expect(lintCandidates(CANDIDATE_LIST, POEM_FRAGMENTS, SCENES)).toEqual([]);
-  });
-
   it('flags an unregistered curtain scene and an unmatched taste tag', () => {
     const candidates = [
       { id: 'test', tastes: ['nonexistent_tag'], curtainSceneId: 'm99_missing' },

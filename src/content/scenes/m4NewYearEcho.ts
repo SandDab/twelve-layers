@@ -1,9 +1,8 @@
 import type { Scene } from '../../engine/scene';
 
-// TODO stub: full Aoi Matsuri content (carriage-place dispute, m4_aoi_carriage_*)
-// ships in M5. This scene is the M1 New Year ripple's payload — proof that a
-// choice made in month 1 is remembered in month 4 — and will be folded into
-// the larger Aoi Matsuri scene when it's authored.
+// This scene is the M1 New Year ripple's payload, delivered alongside the
+// Aoi Matsuri carriage scene (m4_aoi_carriage_*) — proof that a choice made
+// in month 1 is remembered in month 4.
 
 export const m4NewYearEcho: Scene = {
   id: 'm4_newyear_echo_01',

@@ -10,8 +10,7 @@ describe('computeEnding', () => {
   it('returns Behind the Curtain when any romance reaches stage 4+', () => {
     const save = saveWith({
       romance: {
-        ...createInitialSave().romance,
-        sequesteredHeir: { ...createInitialSave().romance.sequesteredHeir, stage: 4 },
+        climber: { stage: 4, interest: 0, closed: false, introFired: true },
       },
     });
     expect(computeEnding(save)).toBe('behind_the_curtain');
@@ -51,8 +50,7 @@ describe('computeEnding', () => {
     const save = saveWith({
       factionReputation: { ...DEFAULT_FACTION_REPUTATION, clergy: -10 },
       romance: {
-        ...createInitialSave().romance,
-        sharpBrush: { ...createInitialSave().romance.sharpBrush, stage: 4 },
+        widow: { stage: 4, interest: 0, closed: false, introFired: true },
       },
     });
     expect(computeEnding(save)).toBe('behind_the_curtain');

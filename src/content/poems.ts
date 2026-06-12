@@ -5,8 +5,8 @@ import type { PoemFragment } from '../engine/types';
 // time; Romaji mode (M4) displays `romaji`, Gloss/Immersion (M6) will
 // add `jp`/`kana` display over this same data.
 //
-// Imagery tags, three per season, double as romance candidates'
-// `tastes` (src/content/npcs.ts):
+// Imagery tags, three per season, are intended to double as future love
+// interests' `tastes` (GAME_DESIGN.md §6, M4a+):
 //   spring: plum, cherry_blossom, mist
 //   summer: cuckoo, iris, firefly
 //   autumn: moon, maple, insects

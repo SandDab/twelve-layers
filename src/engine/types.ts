@@ -75,31 +75,17 @@ export type IntroDirectorState = {
 /** Kanzashi theme tags (GAME_DESIGN.md §8) — metadata on existing choices. */
 export type ThemeTag = 'principle' | 'restraint' | 'alignment' | 'grace';
 
-/** The three v0.1 romance candidates (GAME_DESIGN.md §6). */
-export type CandidateId = 'sequesteredHeir' | 'sharpBrush' | 'fadedBranch';
-
-export const CANDIDATE_IDS: CandidateId[] = ['sequesteredHeir', 'sharpBrush', 'fadedBranch'];
-
 /**
- * Romance stages (GAME_DESIGN.md §6). v0.1 content covers 1-4;
- * 5 (Kaimami / meeting) and 6 (Commitment) are post-v0.1.
+ * Per-love-interest romance progress (GAME_DESIGN.md §13), keyed by
+ * loveInterestId. Empty until the v0.6 8-LI roster and intro director
+ * are built (M4a+).
  */
-export type RomanceStage = 1 | 2 | 3 | 4 | 5 | 6;
-
 export type RomanceState = {
-  stage: RomanceStage;
-  /** Imagery tags from the candidate's most recent reply, for the next poem's callback bonus. */
-  receivedImageTags: string[];
-  /** Successful Exchange-stage poems sent so far (advances stage 3 -> 4 at the threshold). */
-  exchangeCount: number;
-  /** Calendar position of the last poem sent, for one-poem-per-month pacing. */
-  lastSentYear: number | null;
-  lastSentMonth: number | null;
+  stage: number;
+  interest: number;
+  closed: boolean;
+  introFired: boolean;
 };
-
-export function createInitialRomanceState(): RomanceState {
-  return { stage: 1, receivedImageTags: [], exchangeCount: 0, lastSentYear: null, lastSentMonth: null };
-}
 
 /** A waka fragment slot (GAME_DESIGN.md §6 poem builder: season-word -> image -> turn). */
 export type PoemSlot = 'season' | 'image' | 'turn';
@@ -140,7 +126,7 @@ export type JimokuResult = {
   rankGain: number;
 };
 
-export const CURRENT_SAVE_SCHEMA_VERSION = 8;
+export const CURRENT_SAVE_SCHEMA_VERSION = 9;
 
 export type Save = {
   schemaVersion: number;
@@ -177,8 +163,9 @@ export type Save = {
   // empty until kanzashi gifting is built.
   kanzashiGifted: Record<string, string>;
 
-  // Romance (GAME_DESIGN.md §6): per-candidate stage and exchange state.
-  romance: Record<CandidateId, RomanceState>;
+  // Romance (GAME_DESIGN.md §13): per-love-interest stage and interest
+  // state, keyed by loveInterestId. Empty until the v0.6 roster (M4a+).
+  romance: Record<string, RomanceState>;
 
   // Intro director pacing state (GAME_DESIGN.md §6). Stubbed until M4a.
   introDirector: IntroDirectorState;
@@ -251,10 +238,7 @@ export function createInitialSave(): Save {
     kanzashiAssignments: {},
     kanzashiSeed: 1,
     kanzashiGifted: {},
-    romance: Object.fromEntries(CANDIDATE_IDS.map((id) => [id, createInitialRomanceState()])) as Record<
-      CandidateId,
-      RomanceState
-    >,
+    romance: {},
     introDirector: { introsThisYear: 0 },
     married: null,
     poemDisplayMode: 'romaji',

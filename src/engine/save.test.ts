@@ -182,7 +182,7 @@ describe('schema migration', () => {
     expect(loaded.kanzashiAssignments).toEqual(assignKanzashiMonths(loaded.kanzashiSeed, 2));
   });
 
-  it('migrates a v5 save (no romance field) to v6, defaulting all candidates to stage 1', () => {
+  it('migrates a v5 save (no romance field) to the current schema with an empty romance record', () => {
     const v5Save = {
       schemaVersion: 5,
       classId: 'governors_heir',
@@ -211,15 +211,50 @@ describe('schema migration', () => {
 
     const loaded = loadSave();
     expect(loaded.schemaVersion).toBe(CURRENT_SAVE_SCHEMA_VERSION);
-    expect(loaded.romance.sequesteredHeir).toEqual({
-      stage: 1,
-      receivedImageTags: [],
-      exchangeCount: 0,
-      lastSentYear: null,
-      lastSentMonth: null,
-    });
-    expect(loaded.romance.sharpBrush.stage).toBe(1);
-    expect(loaded.romance.fadedBranch.stage).toBe(1);
+    expect(loaded.romance).toEqual({});
+  });
+
+  it('migrates a v8 save with the old 3-candidate romance shape to v9 with an empty romance record', () => {
+    const v8Save = {
+      schemaVersion: 8,
+      classId: 'governors_heir',
+      pcGender: 'female',
+      year: 1,
+      month: 5,
+      tokimeki: 12,
+      tokimekiHistory: {},
+      attributes: { rank: 0, charisma: 10, allure: 10, rhetoric: 10, taste: 10 },
+      resources: { koku: 100, composure: 100 },
+      favors: {},
+      flags: {},
+      rippleQueue: [],
+      pendingGossip: [],
+      factionReputation: { regent: 0, rivalHouses: 0, imperial: 0, clergy: 0 },
+      sceneProgress: {},
+      staff: { steward: false, poetTutor: false, gardener: false, seamstress: false },
+      wardrobe: { owned: [], equipped: null },
+      actionsRemaining: 3,
+      kanzashiOwned: [],
+      kanzashiEquipped: null,
+      kanzashiAssignments: {},
+      kanzashiSeed: 1,
+      kanzashiGifted: {},
+      romance: {
+        sequesteredHeir: { stage: 3, receivedImageTags: [], exchangeCount: 1, lastSentYear: 1, lastSentMonth: 4 },
+        sharpBrush: { stage: 1, receivedImageTags: [], exchangeCount: 0, lastSentYear: null, lastSentMonth: null },
+        fadedBranch: { stage: 1, receivedImageTags: [], exchangeCount: 0, lastSentYear: null, lastSentMonth: null },
+      },
+      introDirector: { introsThisYear: 0 },
+      married: null,
+      poemDisplayMode: 'romaji',
+      jimokuResult: null,
+      debug: false,
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(v8Save));
+
+    const loaded = loadSave();
+    expect(loaded.schemaVersion).toBe(CURRENT_SAVE_SCHEMA_VERSION);
+    expect(loaded.romance).toEqual({});
   });
 
   it('migrates a v7 save (no pcGender/kanzashiGifted/introDirector/married) to v8 with §13 defaults', () => {
