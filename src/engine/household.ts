@@ -5,6 +5,7 @@ import { STAFF_DEFINITIONS } from '../content/staff';
 import { getTokimekiTier } from '../content/tokimekiTiers';
 import { tickCalendar } from './calendar';
 import { addMonths, applyEffects } from './effects';
+import { applyJimoku } from './jimoku';
 import { resolveDueGossip } from './ripples';
 import { BASE_FREE_ACTIONS, type AttributeKey, type ClassId, type Save, type StaffRole } from './types';
 
@@ -116,9 +117,9 @@ export function applyTokimekiEnvyTrigger(save: Save): Save {
 
 /**
  * Composed end-of-month step: wardrobe effects for the closing month,
- * the envy-tier check, income, the calendar tick (incl. year rollover
- * and Tokimeki reset), due gossip resolution, and next month's free
- * action allowance.
+ * the envy-tier check, income, the jimoku (on the month-12 close, before
+ * Tokimeki resets), the calendar tick (incl. year rollover and Tokimeki
+ * reset), due gossip resolution, and next month's free action allowance.
  */
 export function applyMonthEnd(save: Save): Save {
   let next = applyWardrobeEffects(save);
@@ -130,6 +131,9 @@ export function applyMonthEnd(save: Save): Save {
       koku: next.resources.koku + computeIncome(next.staff, next.tokimeki, next.classId, next.kanzashiEquipped),
     },
   };
+  if (next.month === 12) {
+    next = applyJimoku(next);
+  }
   next = tickCalendar(next);
   next = resolveDueGossip(next);
   next = { ...next, actionsRemaining: computeFreeActions(next.tokimeki) };

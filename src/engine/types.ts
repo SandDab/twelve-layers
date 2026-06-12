@@ -103,7 +103,26 @@ export type PoemFragment = {
   tags: string[];
 };
 
-export const CURRENT_SAVE_SCHEMA_VERSION = 6;
+/** Poem display modes (GAME_DESIGN.md §6): Romaji is the M4 default; Gloss and Immersion are M6 UI work over the same fragment fields. */
+export type PoemDisplayMode = 'romaji' | 'gloss' | 'immersion';
+
+/** Year-end jimoku ending slates (GAME_DESIGN.md §4, §14). */
+export type EndingId =
+  | 'behind_the_curtain'
+  | 'overextended'
+  | 'estranged'
+  | 'toast_of_the_capital'
+  | 'quiet_advancement'
+  | 'unremarked_year';
+
+/** Result of the jimoku resolution for the closing year, shown at the next New Year. */
+export type JimokuResult = {
+  year: number;
+  endingId: EndingId;
+  rankGain: number;
+};
+
+export const CURRENT_SAVE_SCHEMA_VERSION = 7;
 
 export type Save = {
   schemaVersion: number;
@@ -137,6 +156,13 @@ export type Save = {
 
   // Romance (GAME_DESIGN.md §6): per-candidate stage and exchange state.
   romance: Record<CandidateId, RomanceState>;
+
+  // Poem display mode (GAME_DESIGN.md §6): Romaji/Gloss/Immersion.
+  poemDisplayMode: PoemDisplayMode;
+
+  // The most recently resolved jimoku (year-end ending + Rank conversion),
+  // shown once at the following New Year, then cleared.
+  jimokuResult: JimokuResult | null;
 
   debug: boolean;
 };
@@ -197,6 +223,8 @@ export function createInitialSave(): Save {
       CandidateId,
       RomanceState
     >,
+    poemDisplayMode: 'romaji',
+    jimokuResult: null,
     debug: false,
   };
 }
