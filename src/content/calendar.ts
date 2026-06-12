@@ -30,7 +30,12 @@ export const ANCHOR_EVENTS: AnchorEvent[] = [
     sceneId: 'm7_tanabata_01',
   },
   { month: 8, name: 'Tsukimi Moon-Viewing', focus: 'Taste showcase; moongazing mini-scene', sceneId: 'm8_tsukimi_01' },
-  { month: 11, name: 'Gosechi Dances → New Year Jimoku', focus: 'Finale: promotions list resolves the year' },
+  {
+    month: 11,
+    name: 'Gosechi Dances → New Year Jimoku',
+    focus: 'Finale: promotions list resolves the year',
+    sceneId: 'm11_gosechi_01',
+  },
 ];
 
 export function getAnchorEvent(month: number): AnchorEvent | undefined {

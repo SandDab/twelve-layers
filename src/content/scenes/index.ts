@@ -11,6 +11,7 @@ import { m4AoiCarriage } from './m4AoiCarriage';
 import { m4NewYearEcho } from './m4NewYearEcho';
 import { m7Tanabata } from './m7Tanabata';
 import { m8Tsukimi } from './m8Tsukimi';
+import { m11Gosechi } from './m11Gosechi';
 import { oldNameDebt } from './oldNameDebt';
 import { romanceFadedBranchCurtain } from './romanceFadedBranchCurtain';
 import { romanceSequesteredHeirCurtain } from './romanceSequesteredHeirCurtain';
@@ -22,6 +23,7 @@ export const SCENES: Record<string, Scene> = {
   [m4AoiCarriage.id]: m4AoiCarriage,
   [m7Tanabata.id]: m7Tanabata,
   [m8Tsukimi.id]: m8Tsukimi,
+  [m11Gosechi.id]: m11Gosechi,
   [envyRival.id]: envyRival,
   [oldNameDebt.id]: oldNameDebt,
   [kanzashiKobaiDelivery.id]: kanzashiKobaiDelivery,
