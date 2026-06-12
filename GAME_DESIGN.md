@@ -1,6 +1,6 @@
 # TWELVE LAYERS (working title)
 ### A Heian court dating sim / household tycoon for mobile web
-*Design document v0.3 — all decisions confirmed, build-ready*
+*Design document v0.6 — intro director pacing added. All decisions confirmed.*
 
 Working title refers to the jūnihitoe, the twelve-layered court robe — status, concealment, and seasonal taste in one garment. Alternates: "Cloistered Moon," "The Vermilion Gate," "Kasane."
 
@@ -20,7 +20,7 @@ The court runs on poetry, taste, and rumor. Every visible win can be a hidden lo
 
 ## 2. Player character & world
 
-- Gender selectable; all romance routes available regardless (archetypes written gender-flexible).
+- **Gender selectable (male or female) at the class picker.** Either PC can romance any of the eight love interests, and courtship functions identically regardless of PC gender — same stages, same mechanics, same poem exchange. In-world, the court gossips about *who* you court (a farmer! a foreigner!), never about gender.
 - Starting court rank: none (rank is earned in-game; see §4).
 - **The court is fictional but period-realistic.** Invented names, recognizable silhouettes — a regent at his zenith, a sidelined imperial branch, a celebrated literary salon — but no real historical figures. Frees the writing; keeps the texture.
 
@@ -112,7 +112,7 @@ Faction standing with four blocs: **the Regent's house**, **rival noble houses**
 Courtship is conducted the Heian way: **almost entirely through poetry and screens** before anyone sees a face.
 
 ### Stages (per candidate)
-1. **Rumor** — you hear of them; they may hear of you (gossip system feeds this)
+1. **Rumor / introduction** — the route opens via an emergent introduction trigger (see below); you hear of her, or she has already heard of you
 2. **First poem** — you initiate or receive a waka; quality and *appropriateness* judged
 3. **Exchange** — multi-poem correspondence over weeks (calendar-paced, anticipation is the point)
 4. **Behind the curtain** — conversation through a kichō screen; dialogue scenes with checks
@@ -129,14 +129,43 @@ Every poem fragment is authored with four fields: `{ jp (kanji), kana, romaji, e
 2. **Gloss:** full Japanese (kanji + kana) as the primary text, with kana reading above and English gloss below. Reading practice without gameplay risk.
 3. **Immersion:** poetry gameplay entirely in Japanese — fragment selection, recipient reactions, scoring feedback all JP-only. The poetic layer becomes a language drill; the rest of the game stays English.
 
-This is a content-schema decision, not a feature to retrofit: M4 authors all fragments with all four fields; modes 2–3 are then UI work, not content work.
+This is a content-schema decision, not a feature to retrofit: M4a authors all fragments with all four fields; modes 2–3 are then UI work, not content work.
 
 **Calligraphy mode (v0.2 backlog, schema-supported now):** trace the stroke paths of a finished poem's key kanji with the thumb; scored on stroke order and smoothness; boosts the poem's delivered quality (the Heian court judged hand as much as verse). Fragments carry kanji stroke data references so this drops in later without touching content.
 
-### v0.1 candidates (3; archetypes, gender-flexible)
-1. **The Sequestered Heir** — a Fujiwara daughter/son being groomed for palace placement. Highest ceiling, highest political risk; courting them is courting the regent's attention, good and bad.
-2. **The Sharp Brush** — a celebrated lady-in-waiting / court poet (Sei Shōnagon energy). Rhetoric-gated, roasts you when you fail checks, the "banter route."
-3. **The Faded Branch** — widowed princeling of a sidelined imperial line. Mono no aware route; low political value, high narrative payoff, conflicts directly with the climb.
+### How routes open: emergent introductions (all eight missable)
+There is no romance menu. Each love interest *watches* for a pattern of behavior — accumulated choice tags, attribute thresholds, public actions — and when their conditions are met, an **introduction opportunity** fires as a ripple in a later month: an unsigned poem arrives, a glimpse through a carriage blind at a festival, a mutual acquaintance passes along a request. Trigger conditions are never labeled or hinted in dialogue; the player should not know which behavior opened which door. Decline or ignore the opportunity and it lapses.
+
+Post-introduction, every route contains **one unmarked critical choice** — placed at a *different stage* per route, so the pattern can't be learned once and reused. Misplay it and the route closes for the year. In NG+ years, unclosed routes can re-trigger (an unmarried interest may reappear; a married PC's other routes stay closed).
+
+### Introduction pacing: the intro director
+Eight love interests must not mean eight introductions in year one. A small director runs at each month tick and enforces pacing:
+
+- **Annual cap:** max 2–3 intro opportunities per year (tunable), with a minimum 2-month gap between them. Meeting the full cast is naturally a multi-year affair.
+- **Relevance selection:** when several LIs' conditions are met simultaneously, only the *strongest* match fires — greatest overlap between their conditions and the player's actual behavior record, with never-before-met interests preferred. Which people you meet is itself emergent: a deference-playing Judge's Child encounters the Devotee and the Sole Heir; an acclaim-chasing Governor's Heir draws the Climber and the Captain. Playstyle is the matchmaker.
+- **Pity timer:** if no intro has fired by month 6, the closest available match fires anyway — no dead romance years.
+- **Concurrency:** max 2 open courtships at once (a third intro queues until one resolves or closes); marriage shuts the director off.
+- **Across years:** unmet and unclosed interests carry forward as candidates; the director's year-over-year job is making each year feel like *this year's* social season, not a checklist.
+
+### Interest (hidden, per love interest)
+Driven by poem quality, choices they value, attribute thresholds, and kasane correctness *if they care about such things*. Never shown as a meter — read it through prose tone, reply speed, whether their poems use your imagery back. Interest gates the critical choice's outcomes, marriage availability, and kanzashi acceptance (§8). A refused kanzashi is the only hard read on this stat the game ever gives.
+
+### Acclaim vs. deference (per-interest response profile)
+Two ambient courtship signals run alongside poems and choices: **acclaim** (contest wins, public Tokimeki moments — being *seen* succeeding) and **deference** (yielding gracefully, restraint-coded and tasteful-submission choices). Every love interest responds to each signal positively, neutrally, or negatively. The Social Climber and the Captain are drawn to acclaim; the Second Prince and the Devotee read presumption into anything but deference; the Riverbank Girl dislikes acclaim outright. Never explained in-game — learned by watching reply tone.
+
+### v0.1 love interests (8; all available to either PC, all missable)
+| | Archetype | What they reward | Style? | Household buff after marriage | Class resonance |
+|---|---|---|---|---|---|
+| 1 | **The Social Climber** — a lady-in-waiting burning to rise, sharp-tongued, ambitious | ambition, acclaim, public wins, Charisma | judges it hard — kasane mistakes cost interest | **Tokimeki gains ×1.25** — she curates your reputation | Governor's Heir |
+| 2 | **The Young Widow** — quiet, observant, has already survived the court once (mono no aware) | restraint, sincerity, deference over flash | indifferent — substance over surface | **once per season, quietly intercepts one incoming negative ripple or envy event** | Salon Child |
+| 3 | **The Sole Heir** — last of her line; marrying her is uxorilocal marriage *into* a superior household | principle, propriety, deference, formal Rhetoric | yes — her house's dignity is at stake | **household Taste aura** — kasane penalties prevented, Taste training faster, heirloom wardrobe | Judge's Child |
+| 4 | **The Girl from the Riverbank** — boyish governor's daughter raised half-wild by the Kamo; fishes, climbs, hopeless at kasane | authenticity, curiosity, low artifice; *dislikes acclaim and preening* | actively unimpressed | **she fishes** — upkeep reduced, monthly surplus, Composure regen | Old Name |
+| 5 | **The Captain** — war hero returned from pacifying an eastern rebellion; the court finds him useful and slightly alarming | acclaim, contest wins, directness, courage-coded choices | indifferent | **rivals reconsider** — envy events weakened or deterred | Salon Child |
+| 6 | **The Devotee** — a landholding farmer who idolizes Shinto masters; purity, simplicity, the turning seasons | deference, authenticity, restraint; *dislikes ostentation* | dislikes it | **stillness** — Composure regen up, clergy rep gains, tends your garden (gardener synergy) | Judge's Child |
+| 7 | **The Second Prince** — younger brother of the imperial heir; charming, watched, dangerous to want | flawless tasteful deference, propriety | absolutely — imperial formality | **imperial favor** — invitation tier +1, provincial stigma erased, imperial rep gains | Governor's Heir |
+| 8 | **The Northern Merchant** — foreign trader of the far northern routes (sable, amber, arriving via the continental chain); the court gawks | acclaim, shrewdness, results | foreign indifference to court style | **trade wealth** — monthly Koku income, occasional rare goods | Old Name |
+
+Marrying the Devotee, the Merchant, or the Riverbank Girl is a court scandal in itself — the "love vs. climb" routes. Marrying the Second Prince or the Sole Heir is a political event with relatives attached. Buffs are **undocumented in-game** — no tooltip ever explains what a spouse brings. The surprise of the introduction, the uncertainty of courtship, and discovering what each marriage *does* are the content. The resonance column gives every class one resonant route per cast, mirroring the kanzashi matrix: by year's end, marriage, kanzashi, and training are three paths to resolving (or pointedly not resolving) your class's weakness — the endgame is the household you composed.
 
 ## 7. Consequences: the ripple system
 
@@ -162,6 +191,8 @@ Every significant choice enqueues **ripples**: `{trigger_month, condition_flags,
 
   Each kanzashi complements one class's liability while reinforcing another's strength — any class can earn any of them. Benefits are deliberately small (a lane-lean, not a power spike); the chase and the story of *how you got it* are the reward. Tunables: benefit magnitudes, stipend size. Invariants: four per year, theme-earned only, never purchasable, never labeled.
 
+  **Gifting:** a **female PC** wears kanzashi directly — passives active immediately on equip. A **male PC** acquires them *dormant*: passives only activate once gifted to a love interest during courtship (stage 3+); female recipients wear them, male recipients keep them as treasured tokens (ornament-as-keepsake was real courtship currency) — same rules either way. Acceptance is an Interest check, with an affinity bonus when the kanzashi's theme matches what they value (the Widow or the Devotee and Tsukikage's restraint; the Climber or the Captain and Fuji's alignment; the Heir or the Prince and Kōbai's principle; the Riverbank Girl or the Merchant and Sango's ungrasping grace) — affinities are bonuses, never locks. **Accepted:** the passive activates for the household, plus an Interest bump. **Refused:** it's returned with a small gossip risk — but refusal is the only hard read on hidden Interest the game provides, so even the sting carries information. Refused pins can be re-gifted later, or to someone else. Once accepted, it is *theirs*: if that courtship later collapses, the kanzashi leaves with them. Give carefully.
+
 ## 9. The social calendar (v0.1 ships 6 anchor events)
 
 | Month | Event | Design focus |
@@ -180,8 +211,6 @@ Backlog for later versions: incense competition (kōawase), chrysanthemum festiv
 ### Ikebana
 Vase with 5–7 placement slots; a tray of seasonal stems cycles at the thumb arc. Tap to place, tap placed stem to remove. Score on the heaven–earth–human height triad, seasonal correctness, and negative space (empty slots can be correct). 30–60 seconds. Feeds Taste; used at events as a checked performance ("arrange for the Empress's alcove").
 
-Art note: stem art for prior-month seasonal flowers should appear earlier (e.g. in scene backgrounds or household flavor) so players have visually learned a stem's season before they have to judge it in the mini game.
-
 ### Zen garden raking
 Thumb-drag draws rake furrows around fixed stones on a sand field. No timer. Score on line continuity, coverage ratio, and not crossing your own furrows; generous thresholds — it's a restoration verb, not a test. Restores Composure; gardener staff upgrades pattern options (ripples around stones score bonus).
 
@@ -198,12 +227,10 @@ Hold-and-release timing: hold as clouds pass, release when the moon clears, pair
 ## 12. Visual direction
 
 - **Yamato-e as the rendering answer:** fukinuki yatai (roofless, oblique interiors) for scene backgrounds; hikime kagibana ("line eyes, hook nose") stylization for faces — period-correct *and* dramatically cheaper to draw/generate consistently than expressive portraits. Emotion is carried by posture, fans, sleeves, and text.
-- **Source art from public-domain Heian-era works where possible** (e.g. Genji Monogatari Emaki, other yamato-e handscrolls/screens in the public domain or under open licenses) for backdrops and possibly character bases, rather than commissioning or generating new art from scratch. To be sourced and vetted for licensing later; placeholder art remains the interim approach (see §5 of the milestones).
 - **Signature element — the living kasane palette:** the entire UI chrome (backgrounds, card edges, accents) derives from the current month's kasane no irome color pairing, shifting as the calendar advances. The interface itself observes the seasons; the wardrobe system teaches the player to read it.
 - Texture: washi paper grain on panels; vertical text used as accent (titles, chapter cards), horizontal for all reading text.
 - Type: a mincho-style display face (e.g., Shippori Mincho on Google Fonts) for titles, a clean humanist body face for dialogue; both must hold up at mobile sizes.
 - Motion: restrained — sleeve/curtain transitions between scenes, drifting blossom or snow particles per season, nothing bouncy.
-- Seasonal flora as foreshadowing: where scenes reference seasonal plants/flowers, depict them in the art for that month even when not directly interactive. This gives players a passive visual reference for which stems belong to which season ahead of the ikebana mini game (see §10).
 
 ## 13. Tech spec
 
@@ -253,9 +280,26 @@ type ThemeTag = 'principle' | 'restraint' | 'alignment' | 'grace';
 type KanzashiDef = {
   id: 'kobai' | 'tsukikage' | 'fuji' | 'sango';
   name: string; color: string; theme: ThemeTag;
-  passives: Effect[] | PassiveModifier[];   // small, always-on while equipped
+  passives: Effect[] | PassiveModifier[];   // small, always-on — DORMANT until gifted & accepted (male PC)
   deliverySceneId: string;                  // the messenger/gift scene
 };
+
+type LoveInterest = {
+  id: 'climber' | 'widow' | 'sole_heir' | 'riverbank'
+    | 'captain' | 'devotee' | 'second_prince' | 'merchant';
+  name: string; archetype: string;
+  introConditions: { tags?: ThemeTag[]; minAttrs?: Partial<Record<string, number>>; flags?: string[] };
+  caresAboutStyle: boolean;                 // kasane correctness affects interest
+  acclaim: -1 | 0 | 1;                      // response to contest wins / public Tokimeki moments
+  deference: -1 | 0 | 1;                    // response to yielding / restraint-coded choices
+  criticalChoice: { sceneId: string; stage: 2|3|4|5 };  // unmarked, different stage per route
+  valuedTags: ThemeTag[];                   // choice themes that build interest
+  kanzashiAffinity: ThemeTag;               // acceptance bonus, never a lock
+  buff: PassiveModifier[];                  // household-wide after marriage; NEVER surfaced in UI
+};
+
+// scene engine: dynamic dialogue socket (renders fallbackBody in v0.1; see §17)
+type DynamicNode = { id: NodeId; kind: 'dynamic'; promptId: string; fallbackBody: string; next?: NodeId };
 
 type PoemFragment = {
   id: string; slot: 'season'|'image'|'turn';
@@ -267,11 +311,16 @@ type PoemFragment = {
 type Save = {
   schemaVersion: number;
   classId: ClassId;                                        // chosen at new game, permanent
+  pcGender: 'male' | 'female';                             // chosen at new game; courtship mechanics identical
   year: number; month: number;                             // multi-year from day one
   tokimeki: number;                                           // resets at New Year
   tokimekiHistory: Record<number, number>;                    // per-year ledger (jimoku math, flavor)
   kanzashiOwned: string[]; kanzashiEquipped?: string;         // owned persists across years
   kanzashiAssignments: Record<string, number>;                // kanzashiId -> month, re-rolled each year (seeded)
+  kanzashiGifted: Record<string, string>;                     // kanzashiId -> loveInterestId (hers now)
+  romance: Record<string, { stage: number; interest: number; closed: boolean; introFired: boolean }>;
+  introDirector: { introsThisYear: number; lastIntroMonth?: number; queued?: string };
+  married?: string;                                           // loveInterestId; activates their buff
   // attributes, rank, koku, household, romance states, NPC attitudes,
   // faction rep, flags, ripple queue — all persist across years
 };
@@ -289,7 +338,9 @@ type Save = {
 
 **M3 — Ikebana.** Full mini game with scoring, integrated as a checked event performance and a free action. *Done when: playable one-thumb, score feeds Taste.*
 
-**M4 — Romance + poem builder.** Romance stage machine, poem composer, exchange pacing across months, all 3 candidates' tracks for stages 1–4. All poem fragments authored with all four language fields; **Romaji mode** is the shipped display. *Done when: a full poem exchange with The Sharp Brush can succeed or fail with gossip consequences.*
+**M4a — Romance engine + first routes.** Romance stage machine with **emergent introduction triggers** governed by the intro director (condition watcher → relevance scoring → caps/gap/pity-timer → intro ripple), hidden Interest stat, acclaim/deference signal emission and per-LI response profiles, per-route unmarked critical choices, route closure/missability; poem composer; exchange pacing across months; kanzashi gifting with Interest-checked acceptance, affinity bonuses, dormant-until-accepted passives (female PC wears directly), and loss-on-route-collapse. All poem fragments authored with all four language fields; **Romaji mode** is the shipped display. Scene engine gains the `dynamic` node type rendering `fallbackBody` (§17). Ship **two complete routes** (recommend Riverbank Girl + Second Prince — one scandal route, one political route, opposite response profiles). *Done when: the Riverbank Girl's route can be triggered, courted, married, and her fishing buff verified active — or her critical choice fumbled and the route confirmed closed; and a refused kanzashi returns with its gossip risk applied.*
+
+**M4b — Remaining routes (content sessions, engine frozen).** The other six love interests' full tracks: intro conditions, poems, critical choices, marriage scenes, buffs. Pure content work against the M4a engine — may split across multiple sessions. *Done when: all eight routes are completable and all eight buffs verify via debug.*
 
 **M5 — Raking + gossip surfacing.** Raking mini game with Composure restoration; faction reputation surfacing lines in scenes; events for months 4, 7, 8 content-complete, with every anchor event carrying at least one choice per theme tag so kanzashi are earnable regardless of month assignment. *Done when: the Aoi Matsuri carriage dispute plays with all options viable and all options costly.*
 
@@ -300,19 +351,35 @@ type Save = {
 ## 15. v0.1 content scope (hard limits, resist expansion)
 
 - 1 year of *content*, multi-year *architecture*: year 2 must start cleanly (carryover + Tokimeki reset) even though it has no bespoke events yet
-- 6 anchor events, ~12 named NPCs, 3 romance candidates (stages 1–5; stage 6 epilogue text only)
+- 6 anchor events, ~12 named NPCs plus **8 love interests** (intro → critical choice → courtship → marriage + buff for all eight; this is the project's largest content lift — see M4a/M4b)
 - 4 classes with full perk/liability implementation; ~8–12 `[Background]` dialogue options across all events (max ~2 per event, not required in every event)
 - 4 kanzashi with delivery scenes; every anchor event carries at least one choice per theme tag (tags are metadata on existing choices, not extra branches)
 - 2.5 mini games (ikebana, raking, moongazing-lite)
 - ~16 robes, ~40 poem fragments (each authored in all four language layers — budget the writing time), ~20 ripples
 - 4–6 endings
 
-## 16. Decisions confirmed (v0.3 — nothing outstanding)
+## 16. Decisions log (all confirmed)
 
 1. **Tone:** lighthearted fun overall; satire/melancholy balance is steered by player choices per-thread, not fixed per-route. Confirmed ceiling: bittersweet at worst — exile, estrangement, unconsummated longing; no on-screen death or cruelty.
 2. **Multi-year NG+:** yes. Attributes, Rank, relationships, attitudes, reputation, household, and Koku all persist; **Tokimeki** resets each New Year, converting (with faction standing) into permanent Rank at the jimoku first — confirmed. Architecture supports this from M0.
 3. **Historicity:** fully fictional court, rigorously period-realistic in texture. No real figures.
 4. **Poem language:** three display modes (Romaji default → Gloss → Immersion), all content authored with jp/kana/romaji/en from day one (§6). Calligraphy mode planned for v0.2 with schema support now.
 5. **Art:** placeholder-first; gameplay before asset pipeline. Placeholders must respect palette tokens and layout so the eventual art pass is a swap, not a refactor.
+6. **Romance (confirmed):** PC gender selectable at the class picker; either PC romances any of the **eight** love interests with identical courtship mechanics. Emergent introductions, hidden Interest, acclaim/deference response profiles, unmarked critical choices, undocumented marriage buffs, kanzashi gifting (§6, §8). Same-gender courtship is unremarkable in-world. The Merchant is written as a far-northern-routes trader (Rus'-adjacent goods via the continental chain) for period plausibility.
+7. **Dynamic dialogue (confirmed):** optional deferred feature, socket built in M4a; never gates progression, never mutates state; hard rules and publishing safety in §17.
 
 Non-blocking items deferred to during/after the build: final title (Twelve Layers is the working name), deployment target, audio sourcing.
+
+## 17. Dynamic dialogue via Claude API (deferred feature, socket built now)
+
+Post-v0.1 feature: selected dialogue generated live by a Claude model — best suited to **love-interest poem replies** (judging the player's waka and answering in her voice) and **ambient gossip flavor**. Deferred, but the scene engine ships the socket in M4: a `dynamic` node type `{ promptId, fallbackBody }` that simply renders the authored fallback until the feature exists.
+
+**Hard rules (permanent, not v0.1 limitations):**
+1. Dynamic dialogue **never gates progression** — every dynamic node has a fully playable authored fallback.
+2. Dynamic output **never mutates game state.** Flavor only; if structured output is ever needed, it passes through a strict constrained-JSON validator and touches nothing mechanical.
+3. The game must be 100% completable with the feature off.
+
+**Publishing safety (when implemented):**
+- The API key lives **server-side only** — a minimal serverless proxy (Cloudflare Worker / Vercel function). A key shipped in client code will be extracted and the prepay drained, independent of actual players.
+- Proxy enforces: per-session rate caps, per-day global budget ceiling with a hard cutoff to fallback mode, response caching (identical poem inputs reuse replies), small max_tokens, cheapest adequate model tier (Haiku-class). Check current models/pricing at https://docs.claude.com when building.
+- Budget exhaustion is silent and graceful: players on fallback content should not be able to tell.
