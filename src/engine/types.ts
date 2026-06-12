@@ -22,7 +22,7 @@ export type Effect =
   | { kind: 'ripple'; triggerMonth: number; sceneId: string; ifFlags?: string[] }
   | { kind: 'gossip'; tag: string; factionDeltas: Partial<Record<FactionId, number>>; delayMonths: 1 | 2 }
   | { kind: 'kanzashi'; id: string }
-  | { kind: 'romance'; loveInterestId: string; interestDelta?: number; stage?: number; closed?: boolean }
+  | { kind: 'romance'; loveInterestId: string; interestDelta?: number; stage?: number; closed?: boolean; marry?: boolean }
   | { kind: 'courtshipSignal'; signal: 'acclaim' | 'deference' };
 
 export type RippleEntry = {
@@ -131,8 +131,12 @@ export type LoveInterest = {
   caresAboutStyle: boolean;
   acclaim: -1 | 0 | 1;
   deference: -1 | 0 | 1;
+  introScene: { sceneId: string };
   criticalChoice: { sceneId: string; stage: 2 | 3 | 4 | 5 };
   valuedTags: ThemeTag[];
+  // Poem imagery tags (matches POEM_FRAGMENTS tags) this LI's poems
+  // favor, for scorePoem's recipientTastes (GAME_DESIGN.md §6).
+  tastes: string[];
   kanzashiAffinity: ThemeTag;
   buff: PassiveModifier[];
 };

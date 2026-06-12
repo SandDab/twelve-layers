@@ -2,6 +2,56 @@
 
 ## Current accepted milestone
 
+**M4a — Romance engine + route content**, accepted (GAME_DESIGN.md §6/§13/§14).
+This session shipped the remaining M4a scope on top of the prior session's
+engine half (intro director, romance schema, courtship signals, theme-tag
+tracking):
+
+- `src/engine/romance.ts` (+ tests): `composeRomancePoem` (scores via
+  `scorePoem`; success advances stage and Interest, or at one stage short of
+  the critical stage jumps straight to it and queues a ripple to
+  `criticalChoice.sceneId` next month; failure drops Interest and queues
+  `fumbled_a_verse_to_{id}` gossip) and `giftKanzashi` (Interest-checked
+  acceptance with a kanzashi-affinity threshold discount; acceptance moves
+  the kanzashi to `kanzashiGifted` and unequips/reverses its attribute
+  passives if worn; refusal queues `refused_kanzashi_{id}` gossip).
+- `src/engine/introDirector.ts`: `fireIntro` now also queues a ripple to
+  `li.introScene.sceneId` for the following month, so every introduction is
+  an actual scene.
+- Marriage buffs wired end-to-end: `computeIncome` adds the married LI's
+  `kokuStipend`, `applyMonthEnd` applies `composureRegen` (capped), and
+  `resolveDueGossip` applies the married LI's passives (e.g. Second Prince's
+  `factionRepMult`) the same way kanzashi passives do.
+- Two complete routes: **The Girl from the Riverbank** (scandal route,
+  `romance_riverbank_intro`/`romance_riverbank_critical` at stage 5 -
+  marriage activates the fishing-themed Koku stipend + Composure regen buff)
+  and **the Second Prince** (political route,
+  `romance_second_prince_intro`/`romance_second_prince_critical` at stage 4 -
+  marriage activates the imperial-favor/faction-rep buff). The other six love
+  interests get TODO-stub intro scenes (`romanceIntroStubs.ts`) alongside
+  their existing critical-choice stubs, so M4b is pure content work.
+- `src/content/lint.ts`: `lintLoveInterests` now also validates
+  `introScene.sceneId` is registered.
+- `src/ui/PoemComposer.tsx` (new) + `src/state/gameStore.ts`
+  (`composeRomancePoem`, `giftKanzashi` actions) + `src/ui/HouseholdScreen.tsx`
+  ("Correspondence" section: per open courtship, a poem-composer button below
+  the critical stage, and a gift button per owned/ungifted kanzashi). No
+  Interest/score numbers are ever shown - outcomes are read through prose and
+  gossip only, per CLAUDE.md.
+
+Verified via `tsc -b`, `eslint`, `vitest` (163/163), `npm run build`, and a
+debug-panel playtest at 390x844: bumped Taste/`restraint` to fire Riverbank's
+intro, played the intro ripple, composed four matching-season poems to reach
+stage 5 (Interest 12) and trigger the critical-stage ripple, took the marriage
+choice in "The Shallows at Dusk" (`romance.riverbank` -> `stage 6, closed:
+true`, `save.married = 'riverbank'`), and confirmed the marriage buff
+numerically on the next month-end (Koku +30 vs. the usual +25 income, and
+Composure +5 on top of the normal change). Separately sent a mismatched
+(spring-tagged) poem in month 5, confirming the fumble path (`interest: -1`,
+stage unchanged, `fumbled_a_verse_to_riverbank` gossip queued).
+
+## Previously accepted milestone
+
 **M3 — Ikebana**, accepted. The mini game (`src/minigames/ikebana/IkebanaGame.tsx`),
 scoring engine (`src/engine/ikebana.ts`, fully unit-tested), and content
 (`src/content/ikebana.ts`) were already built in a prior session, ahead of
@@ -17,52 +67,14 @@ re-verification with the rest of months 7/8/11, see below).
 
 M0, M1, M1.5, and M2 are also accepted.
 
-## In progress
-
-**M4a — Romance engine** (GAME_DESIGN.md §6/§13/§14), engine half done,
-route content pending (see "What's next"). This session added:
-
-- `src/engine/types.ts`: `LoveInterest`/`LoveInterestId`/`LOVE_INTEREST_IDS`
-  (the v0.6 eight-route roster), `PassiveModifier` (generalizes
-  `KanzashiPassive` to also cover marriage buffs), `Save.themeTagCounts`
-  (lifetime per-`ThemeTag` counter feeding intro relevance), and two new
-  `Effect` kinds: `romance` (direct stage/interest/closed mutation) and
-  `courtshipSignal` (`acclaim`/`deference`, applies ±3 interest to all open
-  courtships per each LI's response profile). Schema bumped 9 -> 10
-  (`save.ts` migration default-fills `themeTagCounts`).
-- `src/content/loveInterests.ts`: all 8 `LOVE_INTEREST` defs (intro
-  conditions, acclaim/deference signs, valued tags, kanzashi affinity,
-  critical-choice scene id + stage, marriage buffs).
-- `src/engine/introDirector.ts`: `runIntroDirector` (annual cap 3, min
-  2-month gap, pity timer at month 6, relevance scoring off
-  `themeTagCounts`, concurrency cap of 2 with a queue for a 3rd, shuts off
-  once `save.married` is set, `introsThisYear` reset at year rollover via
-  `tickCalendar`), `recordThemeTags` (accumulates `themeTagCounts` and
-  grants `+2` interest to open courtships whose `valuedTags` overlap),
-  `applyCourtshipSignal`.
-- `src/content/scenes/romanceCriticalStubs.ts`: 8 TODO-stub critical-choice
-  scenes (`romance_{id}_critical`), registered and content-lint-validated.
-- `src/content/lint.ts`: `lintLoveInterests` validates the roster against
-  the scene registry and `ThemeTag` vocabulary.
-- `src/ui/DebugPanel.tsx`: Theme tag counts (+1 per tag), Intro director
-  status, Romance state list with `+acclaim`/`+deference` signal buttons,
-  Tick Month.
-- Fixed a latent bug in `gameStore.ts`'s `SAVE_FIELDS` that was dropping
-  `kanzashiGifted`, `introDirector`, `married`, `themeTagCounts`,
-  `poemDisplayMode`, and `jimokuResult` on every `set()` (so these never
-  persisted to `localStorage`).
-
-Verified via `tsc -b`, `eslint`, `vitest` (149/149), `npm run build`, and a
-debug-panel playtest at 390x844: bumping `grace` to 3 and ticking the month
-fired `climber`'s intro (`stage 1, interest 3, introFired: true`,
-`introsThisYear: 1`), and `+acclaim`/`+deference` correctly adjusted
-interest per profile.
-
 ## What's next
 
-- **M4a route content** (GAME_DESIGN.md §14): poem composer wiring and two
-  complete routes (Riverbank Girl + Second Prince recommended), replacing
-  their critical-choice stubs with full content.
+- **M4b**: route content for the remaining six love interests (`climber`,
+  `widow`, `sole_heir`, `captain`, `devotee`, `merchant`) — each currently
+  has TODO-stub intro and critical-choice scenes
+  (`romanceIntroStubs.ts`/`romanceCriticalStubs.ts`), registered and
+  content-lint-validated, ready to be replaced with full content following
+  the Riverbank/Second Prince pattern.
 - Note: `src/minigames/raking/RakingGame.tsx` (M5's mini game) is also
   already built and wired into HouseholdScreen, ahead of order — same
   "leave in place, verify later" treatment as months 7/8/11 below.

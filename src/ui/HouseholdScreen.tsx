@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { KANZASHI, KANZASHI_IDS } from '../content/kanzashi';
+import { LOVE_INTERESTS } from '../content/loveInterests';
 import { ROBES } from '../content/robes';
 import { STAFF_DEFINITIONS } from '../content/staff';
 import { getTokimekiTier } from '../content/tokimekiTiers';
 import { computeRestGain, computeTrainGain, seasonOfMonth, TRAIN_COMPOSURE_COST } from '../engine/household';
-import { STAFF_ROLES, type AttributeKey } from '../engine/types';
+import { STAFF_ROLES, type AttributeKey, type LoveInterestId } from '../engine/types';
 import { IkebanaGame } from '../minigames/ikebana/IkebanaGame';
 import { RakingGame } from '../minigames/raking/RakingGame';
+import { PoemComposer } from './PoemComposer';
 import { useGameStore } from '../state/gameStore';
 
 const ATTRIBUTE_LABELS: Record<AttributeKey, string> = {
@@ -33,6 +35,8 @@ export function HouseholdScreen() {
   const wardrobe = useGameStore((s) => s.wardrobe);
   const kanzashiOwned = useGameStore((s) => s.kanzashiOwned);
   const kanzashiEquipped = useGameStore((s) => s.kanzashiEquipped);
+  const kanzashiGifted = useGameStore((s) => s.kanzashiGifted);
+  const romance = useGameStore((s) => s.romance);
   const equipKanzashi = useGameStore((s) => s.equipKanzashi);
   const actionsRemaining = useGameStore((s) => s.actionsRemaining);
   const tickMonth = useGameStore((s) => s.tickMonth);
@@ -43,9 +47,16 @@ export function HouseholdScreen() {
   const equipRobe = useGameStore((s) => s.equipRobe);
   const practiceIkebana = useGameStore((s) => s.practiceIkebana);
   const practiceRaking = useGameStore((s) => s.practiceRaking);
+  const composeRomancePoem = useGameStore((s) => s.composeRomancePoem);
+  const giftKanzashi = useGameStore((s) => s.giftKanzashi);
 
   const [showIkebana, setShowIkebana] = useState(false);
   const [showRaking, setShowRaking] = useState(false);
+  const [poemRecipient, setPoemRecipient] = useState<LoveInterestId | null>(null);
+
+  const openCourtships = (Object.entries(romance) as [LoveInterestId, (typeof romance)[string]][]).filter(
+    ([, state]) => state.introFired && !state.closed,
+  );
 
   const tier = getTokimekiTier(tokimeki);
   const currentSeason = seasonOfMonth(month);
@@ -225,6 +236,46 @@ export function HouseholdScreen() {
             );
           })}
         </section>
+      )}
+
+      {openCourtships.length > 0 && (
+        <section className="card">
+          <h2 style={{ marginTop: 0 }}>Correspondence</h2>
+          {openCourtships.map(([id, state]) => {
+            const li = LOVE_INTERESTS[id];
+            const ungiftedOwned = kanzashiOwned.filter((kid) => !kanzashiGifted[kid]);
+            return (
+              <div className="list-row" key={id} style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+                <div className="list-row-info">
+                  <span className="list-row-title">{li.name}</span>
+                </div>
+                <div className="action-grid">
+                  {state.stage < li.criticalChoice.stage && (
+                    <button className="btn" onClick={() => setPoemRecipient(id)}>
+                      Compose a poem for {li.name}
+                    </button>
+                  )}
+                  {ungiftedOwned.map((kid) => (
+                    <button key={kid} className="btn" onClick={() => giftKanzashi(kid, id)}>
+                      Gift {KANZASHI[kid as keyof typeof KANZASHI].name} to {li.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </section>
+      )}
+
+      {poemRecipient && (
+        <PoemComposer
+          recipientName={LOVE_INTERESTS[poemRecipient].name}
+          onCancel={() => setPoemRecipient(null)}
+          onSubmit={(selection) => {
+            composeRomancePoem(poemRecipient, selection);
+            setPoemRecipient(null);
+          }}
+        />
       )}
 
       <button className="btn btn-accent" style={{ width: '100%' }} onClick={tickMonth}>

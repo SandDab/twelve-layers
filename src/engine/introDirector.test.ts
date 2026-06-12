@@ -17,8 +17,10 @@ function li(overrides: Partial<LoveInterest> & { id: LoveInterest['id'] }): Love
     caresAboutStyle: false,
     acclaim: 0,
     deference: 0,
+    introScene: { sceneId: `romance_${overrides.id}_intro` },
     criticalChoice: { sceneId: `romance_${overrides.id}_critical`, stage: 2 },
     valuedTags: [],
+    tastes: [],
     kanzashiAffinity: 'grace',
     buff: [],
     ...overrides,
@@ -52,6 +54,22 @@ describe('runIntroDirector', () => {
     expect(next.romance.widow).toEqual({ stage: 1, interest: 0, closed: false, introFired: true });
     expect(next.romance.climber).toBeUndefined();
     expect(next.introDirector).toEqual({ introsThisYear: 1, lastIntroMonth: 1, queued: undefined });
+  });
+
+  it('queues a ripple to the fired love interest\'s intro scene for next month', () => {
+    const roster = [li({ id: 'widow', introConditions: { tags: ['restraint'] } })];
+    const save = {
+      ...createInitialSave(),
+      year: 1,
+      month: 1,
+      themeTagCounts: { principle: 0, restraint: 3, alignment: 0, grace: 0 },
+    };
+
+    const next = runIntroDirector(save, roster);
+
+    expect(next.rippleQueue).toEqual([
+      { triggerYear: 1, triggerMonth: 2, sceneId: 'romance_widow_intro' },
+    ]);
   });
 
   it('respects the minimum gap between intros', () => {

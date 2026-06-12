@@ -89,6 +89,7 @@ function applyEffect(effect: Effect, save: Save): Save {
             closed: effect.closed ?? existing.closed,
           },
         },
+        married: effect.marry ? effect.loveInterestId : save.married,
       };
     }
 

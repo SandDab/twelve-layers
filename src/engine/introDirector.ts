@@ -3,6 +3,7 @@
 // theme-tag accumulation for relevance scoring, valued-tag interest gain,
 // and the acclaim/deference response profiles.
 
+import { addMonths } from './effects';
 import type { AttributeKey, LoveInterest, RomanceState, Save, ThemeTag } from './types';
 
 /** Max introduction opportunities per year (GAME_DESIGN.md §6, tunable). */
@@ -52,9 +53,11 @@ function openRomanceCount(save: Save): number {
 
 function fireIntro(save: Save, li: LoveInterest, nowMonth: number): Save {
   const fired: RomanceState = { stage: 1, interest: 0, closed: false, introFired: true };
+  const { year: triggerYear, month: triggerMonth } = addMonths(save.year, save.month, 1);
   return {
     ...save,
     romance: { ...save.romance, [li.id]: fired },
+    rippleQueue: [...save.rippleQueue, { triggerYear, triggerMonth, sceneId: li.introScene.sceneId }],
     introDirector: {
       introsThisYear: save.introDirector.introsThisYear + 1,
       lastIntroMonth: nowMonth,

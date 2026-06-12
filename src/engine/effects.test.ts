@@ -96,6 +96,19 @@ describe('applyEffects', () => {
     expect(save.romance.riverbank).toEqual({ stage: 3, interest: 4, closed: true, introFired: true });
   });
 
+  it('applies a romance effect with marry: true, setting save.married', () => {
+    const base = {
+      ...createInitialSave(),
+      romance: { riverbank: { stage: 5, interest: 10, closed: false, introFired: true } },
+    };
+    const save = applyEffects(
+      [{ kind: 'romance', loveInterestId: 'riverbank', stage: 6, closed: true, marry: true }],
+      base,
+    );
+    expect(save.married).toBe('riverbank');
+    expect(save.romance.riverbank).toEqual({ stage: 6, interest: 10, closed: true, introFired: true });
+  });
+
   it('applies a courtshipSignal effect to open courtships per their acclaim/deference profile', () => {
     // The Riverbank Girl dislikes acclaim (acclaim: -1) and the Devotee
     // welcomes deference (deference: 1); the Captain (acclaim: 1) is not

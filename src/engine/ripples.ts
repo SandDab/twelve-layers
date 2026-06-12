@@ -1,5 +1,6 @@
 import { KANZASHI, type KanzashiId } from '../content/kanzashi';
-import type { GossipEntry, RippleEntry, Save } from './types';
+import { LOVE_INTERESTS } from '../content/loveInterests';
+import type { GossipEntry, LoveInterestId, RippleEntry, Save } from './types';
 
 /** Ripples whose trigger year/month matches the save's current calendar position. */
 export function getDueRipples(save: Save): RippleEntry[] {
@@ -26,13 +27,18 @@ export function getDueGossip(save: Save): GossipEntry[] {
  *
  * An equipped kanzashi can dampen or amplify the result: Kōbai halves
  * the faction impact of "wore_offseason_robe" gossip, and Fuji
- * multiplies positive rivalHouses (old-houses) gains by 1.5.
+ * multiplies positive rivalHouses (old-houses) gains by 1.5. The married
+ * love interest's marriage buff (e.g. the Second Prince's imperial-rep
+ * boost) applies the same way.
  */
 export function resolveDueGossip(save: Save): Save {
   const due = getDueGossip(save);
   if (due.length === 0) return save;
 
-  const passives = KANZASHI[save.kanzashiEquipped as KanzashiId]?.passives ?? [];
+  const passives = [
+    ...(KANZASHI[save.kanzashiEquipped as KanzashiId]?.passives ?? []),
+    ...(LOVE_INTERESTS[save.married as LoveInterestId]?.buff ?? []),
+  ];
 
   const factionReputation = { ...save.factionReputation };
   for (const gossip of due) {

@@ -13,7 +13,9 @@ import {
 import { recordThemeTags } from '../engine/introDirector';
 import { applyKanzashiAttrBonuses, checkKanzashiAward } from '../engine/kanzashi';
 import { applyClass } from '../engine/newGame';
+import type { PoemSelection } from '../engine/poems';
 import { consumeRipple } from '../engine/ripples';
+import { composeRomancePoem as composeRomancePoemEngine, giftKanzashi as giftKanzashiEngine } from '../engine/romance';
 import { clearSave, loadSave, writeSave } from '../engine/save';
 import {
   createInitialSave,
@@ -39,6 +41,8 @@ export interface GameState extends Save {
   consumeRipple: (ripple: RippleEntry) => void;
   applyChoiceEffects: (effects: Effect[]) => void;
   checkKanzashiAward: (themeTags?: ThemeTag[]) => void;
+  composeRomancePoem: (loveInterestId: string, selection: PoemSelection) => void;
+  giftKanzashi: (kanzashiId: string, loveInterestId: string) => void;
   setSceneNode: (sceneId: string, nodeId: string) => void;
   completeScene: (sceneId: string) => void;
   hireStaff: (role: StaffRole) => void;
@@ -192,6 +196,24 @@ export const useGameStore = create<GameState>((set) => ({
       const save = extractSave(state);
       let next = checkKanzashiAward(save, themeTags);
       next = recordThemeTags(next, themeTags, Object.values(LOVE_INTERESTS));
+      if (next === save) return state;
+      writeSave(next);
+      return next;
+    }),
+
+  composeRomancePoem: (loveInterestId, selection) =>
+    set((state) => {
+      const save = extractSave(state);
+      const next = composeRomancePoemEngine(save, loveInterestId, selection, Object.values(LOVE_INTERESTS));
+      if (next === save) return state;
+      writeSave(next);
+      return next;
+    }),
+
+  giftKanzashi: (kanzashiId, loveInterestId) =>
+    set((state) => {
+      const save = extractSave(state);
+      const next = giftKanzashiEngine(save, kanzashiId, loveInterestId, Object.values(LOVE_INTERESTS));
       if (next === save) return state;
       writeSave(next);
       return next;

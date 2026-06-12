@@ -295,6 +295,12 @@ export function lintLoveInterests(
       );
     }
 
+    if (!scenes[def.introScene.sceneId]) {
+      errors.push(
+        `loveInterest "${def.id}": introScene references unregistered scene "${def.introScene.sceneId}"`,
+      );
+    }
+
     for (const tag of def.valuedTags) {
       if (!VALID_THEME_TAGS.includes(tag)) {
         errors.push(`loveInterest "${def.id}": valuedTags has unknown themeTag "${tag}"`);

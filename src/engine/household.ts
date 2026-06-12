@@ -1,4 +1,4 @@
-import { CLASSES } from '../content/classes';
+import { CLASSES, computeComposureCap } from '../content/classes';
 import { KANZASHI, type KanzashiId } from '../content/kanzashi';
 import { LOVE_INTERESTS } from '../content/loveInterests';
 import { getRobe } from '../content/robes';
@@ -9,7 +9,7 @@ import { addMonths, applyEffects } from './effects';
 import { runIntroDirector } from './introDirector';
 import { applyJimoku } from './jimoku';
 import { resolveDueGossip } from './ripples';
-import { BASE_FREE_ACTIONS, type AttributeKey, type ClassId, type Save, type StaffRole } from './types';
+import { BASE_FREE_ACTIONS, type AttributeKey, type ClassId, type LoveInterestId, type Save, type StaffRole } from './types';
 
 export const BASE_INCOME = 20;
 export const TRAIN_COMPOSURE_COST = 10;
@@ -27,14 +27,16 @@ export function seasonOfMonth(month: number): 1 | 2 | 3 | 4 {
 
 /**
  * Monthly koku income: (base + steward bonus + Tokimeki tier bonus) x
- * class income multiplier, plus a flat stipend from an equipped
- * kanzashi's kokuStipend passive (e.g. Sango).
+ * class income multiplier, plus flat stipends from an equipped kanzashi's
+ * kokuStipend passive (e.g. Sango) and the married love interest's
+ * marriage buff (e.g. the Riverbank Girl's fishing income).
  */
 export function computeIncome(
   staff: Record<StaffRole, boolean>,
   tokimeki: number,
   classId: ClassId | null = null,
   kanzashiEquipped: string | null = null,
+  married: string | null = null,
 ): number {
   let income = BASE_INCOME;
   if (staff.steward) income += STAFF_DEFINITIONS.steward.incomeBonus;
@@ -42,7 +44,9 @@ export function computeIncome(
   const incomeMult = classId ? CLASSES[classId].incomeMult : 1;
   const stipend =
     KANZASHI[kanzashiEquipped as KanzashiId]?.passives.find((p) => p.kind === 'kokuStipend')?.amount ?? 0;
-  return Math.round(income * incomeMult) + stipend;
+  const marriageStipend =
+    LOVE_INTERESTS[married as LoveInterestId]?.buff.find((p) => p.kind === 'kokuStipend')?.amount ?? 0;
+  return Math.round(income * incomeMult) + stipend + marriageStipend;
 }
 
 /** Free actions granted for the coming month, including Tokimeki tier bonuses. */
@@ -131,9 +135,20 @@ export function applyMonthEnd(save: Save): Save {
     ...next,
     resources: {
       ...next.resources,
-      koku: next.resources.koku + computeIncome(next.staff, next.tokimeki, next.classId, next.kanzashiEquipped),
+      koku:
+        next.resources.koku +
+        computeIncome(next.staff, next.tokimeki, next.classId, next.kanzashiEquipped, next.married),
     },
   };
+  const composureRegen =
+    LOVE_INTERESTS[next.married as LoveInterestId]?.buff.find((p) => p.kind === 'composureRegen')?.amount ?? 0;
+  if (composureRegen > 0) {
+    const cap = computeComposureCap(next.classId, next.kanzashiEquipped);
+    next = {
+      ...next,
+      resources: { ...next.resources, composure: Math.min(cap, next.resources.composure + composureRegen) },
+    };
+  }
   if (next.month === 12) {
     next = applyJimoku(next);
   }

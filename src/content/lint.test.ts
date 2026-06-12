@@ -310,6 +310,17 @@ describe('lintLoveInterests', () => {
       'loveInterest "widow": criticalChoice references unregistered scene "m99_missing"',
     ]);
   });
+
+  it('flags an unregistered introScene scene', () => {
+    const loveInterests = {
+      ...LOVE_INTERESTS,
+      widow: { ...LOVE_INTERESTS.widow, introScene: { sceneId: 'm99_missing_intro' } },
+    };
+
+    expect(lintLoveInterests(loveInterests, SCENES)).toEqual([
+      'loveInterest "widow": introScene references unregistered scene "m99_missing_intro"',
+    ]);
+  });
 });
 
 describe('lintCandidates', () => {

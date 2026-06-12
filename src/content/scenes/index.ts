@@ -18,11 +18,21 @@ import {
   romanceClimberCritical,
   romanceDevoteeCritical,
   romanceMerchantCritical,
-  romanceRiverbankCritical,
-  romanceSecondPrinceCritical,
   romanceSoleHeirCritical,
   romanceWidowCritical,
 } from './romanceCriticalStubs';
+import {
+  romanceCaptainIntro,
+  romanceClimberIntro,
+  romanceDevoteeIntro,
+  romanceMerchantIntro,
+  romanceSoleHeirIntro,
+  romanceWidowIntro,
+} from './romanceIntroStubs';
+import { romanceRiverbankCritical } from './romanceRiverbankCritical';
+import { romanceRiverbankIntro } from './romanceRiverbankIntro';
+import { romanceSecondPrinceCritical } from './romanceSecondPrinceCritical';
+import { romanceSecondPrinceIntro } from './romanceSecondPrinceIntro';
 
 export const SCENES: Record<string, Scene> = {
   [m1NewYear.id]: m1NewYear,
@@ -45,6 +55,14 @@ export const SCENES: Record<string, Scene> = {
   [romanceDevoteeCritical.id]: romanceDevoteeCritical,
   [romanceSecondPrinceCritical.id]: romanceSecondPrinceCritical,
   [romanceMerchantCritical.id]: romanceMerchantCritical,
+  [romanceClimberIntro.id]: romanceClimberIntro,
+  [romanceWidowIntro.id]: romanceWidowIntro,
+  [romanceSoleHeirIntro.id]: romanceSoleHeirIntro,
+  [romanceRiverbankIntro.id]: romanceRiverbankIntro,
+  [romanceCaptainIntro.id]: romanceCaptainIntro,
+  [romanceDevoteeIntro.id]: romanceDevoteeIntro,
+  [romanceSecondPrinceIntro.id]: romanceSecondPrinceIntro,
+  [romanceMerchantIntro.id]: romanceMerchantIntro,
 };
 
 export function getScene(id: string): Scene | undefined {
