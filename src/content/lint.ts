@@ -18,6 +18,13 @@ export type PoemFragmentLike = {
   kana?: string;
   romaji?: string;
   en?: string;
+  tags?: string[];
+};
+
+export type CandidateLike = {
+  id: string;
+  tastes: string[];
+  curtainSceneId: string;
 };
 
 /**
@@ -199,6 +206,43 @@ export function lintPoemFragments(fragments: PoemFragmentLike[]): string[] {
     for (const field of ['jp', 'kana', 'romaji', 'en'] as const) {
       if (!fragment[field]) {
         errors.push(`poem fragment "${fragment.id}": missing "${field}"`);
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * Validate the romance candidate roster (GAME_DESIGN.md §6): each
+ * candidate's curtainSceneId must resolve to a registered scene, and
+ * every taste tag must be an imagery tag that actually appears on a
+ * poem fragment (so the poem builder's taste-match scoring can fire).
+ */
+export function lintCandidates(
+  candidates: CandidateLike[],
+  fragments: PoemFragmentLike[],
+  scenes: Record<string, Scene>,
+): string[] {
+  const errors: string[] = [];
+
+  const validTags = new Set<string>();
+  for (const fragment of fragments) {
+    for (const tag of fragment.tags ?? []) {
+      validTags.add(tag);
+    }
+  }
+
+  for (const candidate of candidates) {
+    if (!scenes[candidate.curtainSceneId]) {
+      errors.push(
+        `candidate "${candidate.id}": curtainSceneId references unregistered scene "${candidate.curtainSceneId}"`,
+      );
+    }
+
+    for (const tag of candidate.tastes) {
+      if (!validTags.has(tag)) {
+        errors.push(`candidate "${candidate.id}": taste "${tag}" does not match any poem fragment imagery tag`);
       }
     }
   }

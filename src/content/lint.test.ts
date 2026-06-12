@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest';
 import type { Scene } from '../engine/scene';
 import { CLASSES } from './classes';
 import { KANZASHI } from './kanzashi';
-import { lintClasses, lintKanzashi, lintPoemFragments, lintScenes, lintThemeTagCoverage } from './lint';
+import { lintCandidates, lintClasses, lintKanzashi, lintPoemFragments, lintScenes, lintThemeTagCoverage } from './lint';
+import { CANDIDATE_LIST } from './npcs';
+import { POEM_FRAGMENTS } from './poems';
 import { SCENES } from './scenes';
 
 describe('lintScenes', () => {
@@ -221,6 +223,27 @@ describe('lintPoemFragments', () => {
     expect(lintPoemFragments([{ id: 'frag_1', jp: '梅', en: 'plum' }])).toEqual([
       'poem fragment "frag_1": missing "kana"',
       'poem fragment "frag_1": missing "romaji"',
+    ]);
+  });
+
+  it('passes for the registered poem fragment content', () => {
+    expect(lintPoemFragments(POEM_FRAGMENTS)).toEqual([]);
+  });
+});
+
+describe('lintCandidates', () => {
+  it('passes for the registered candidate roster', () => {
+    expect(lintCandidates(CANDIDATE_LIST, POEM_FRAGMENTS, SCENES)).toEqual([]);
+  });
+
+  it('flags an unregistered curtain scene and an unmatched taste tag', () => {
+    const candidates = [
+      { id: 'test', tastes: ['nonexistent_tag'], curtainSceneId: 'm99_missing' },
+    ];
+
+    expect(lintCandidates(candidates, POEM_FRAGMENTS, SCENES)).toEqual([
+      'candidate "test": curtainSceneId references unregistered scene "m99_missing"',
+      'candidate "test": taste "nonexistent_tag" does not match any poem fragment imagery tag',
     ]);
   });
 });
