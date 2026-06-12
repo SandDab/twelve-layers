@@ -7,6 +7,7 @@ import {
   kanzashiTsukikageDelivery,
 } from './kanzashiDelivery';
 import { m1NewYear } from './m1NewYear';
+import { m4AoiCarriage } from './m4AoiCarriage';
 import { m4NewYearEcho } from './m4NewYearEcho';
 import { m8Tsukimi } from './m8Tsukimi';
 import { oldNameDebt } from './oldNameDebt';
@@ -17,6 +18,7 @@ import { romanceSharpBrushCurtain } from './romanceSharpBrushCurtain';
 export const SCENES: Record<string, Scene> = {
   [m1NewYear.id]: m1NewYear,
   [m4NewYearEcho.id]: m4NewYearEcho,
+  [m4AoiCarriage.id]: m4AoiCarriage,
   [m8Tsukimi.id]: m8Tsukimi,
   [envyRival.id]: envyRival,
   [oldNameDebt.id]: oldNameDebt,

@@ -17,7 +17,12 @@ export const ANCHOR_EVENTS: AnchorEvent[] = [
     sceneId: 'm1_new_year',
   },
   { month: 3, name: 'Cherry-Blossom Banquet & Utaawase', focus: 'Poem builder debut; public win/lose with gossip stakes' },
-  { month: 4, name: 'Aoi Matsuri', focus: 'The carriage-place dispute — every option costs someone' },
+  {
+    month: 4,
+    name: 'Aoi Matsuri',
+    focus: 'The carriage-place dispute, every option costs someone',
+    sceneId: 'm4_aoi_carriage_01',
+  },
   { month: 7, name: 'Tanabata', focus: 'Romance spotlight; poem exchanges accelerate' },
   { month: 8, name: 'Tsukimi Moon-Viewing', focus: 'Taste showcase; moongazing mini-scene', sceneId: 'm8_tsukimi_01' },
   { month: 11, name: 'Gosechi Dances → New Year Jimoku', focus: 'Finale: promotions list resolves the year' },

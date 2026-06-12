@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest';
 import type { Scene } from '../engine/scene';
 import { CLASSES } from './classes';
 import { KANZASHI } from './kanzashi';
-import { lintCandidates, lintClasses, lintKanzashi, lintPoemFragments, lintScenes, lintThemeTagCoverage } from './lint';
+import {
+  lintCandidates,
+  lintClasses,
+  lintKanzashi,
+  lintNoEmDashes,
+  lintPoemFragments,
+  lintScenes,
+  lintThemeTagCoverage,
+} from './lint';
 import { CANDIDATE_LIST } from './npcs';
 import { POEM_FRAGMENTS } from './poems';
 import { SCENES } from './scenes';
@@ -228,6 +236,30 @@ describe('lintPoemFragments', () => {
 
   it('passes for the registered poem fragment content', () => {
     expect(lintPoemFragments(POEM_FRAGMENTS)).toEqual([]);
+  });
+});
+
+describe('lintNoEmDashes', () => {
+  it('flags em and en dashes in body and choice text', () => {
+    const scenes: Record<string, Scene> = {
+      bad: {
+        id: 'bad',
+        title: 'Bad',
+        startNode: 'a',
+        nodes: {
+          a: {
+            id: 'a',
+            body: 'A pause, an em dash— here.',
+            choices: [{ text: 'An en dash – here.', effects: [], goto: 'a' }],
+          },
+        },
+      },
+    };
+
+    expect(lintNoEmDashes(scenes)).toEqual([
+      'bad/a: body contains an em dash or en dash',
+      'bad/a: choice text "An en dash – here." contains an em dash or en dash',
+    ]);
   });
 });
 
