@@ -2,14 +2,29 @@
 
 ## Current accepted milestone
 
-**M2 — Household + Tokimeki + kanzashi**, accepted (acceptance criteria
-verified via store-level tests in `src/state/gameStore.test.ts`, commit
-`fbf82f5`). M0, M1, and M1.5 are also accepted.
+**M3 — Ikebana**, accepted. The mini game (`src/minigames/ikebana/IkebanaGame.tsx`),
+scoring engine (`src/engine/ikebana.ts`, fully unit-tested), and content
+(`src/content/ikebana.ts`) were already built in a prior session, ahead of
+order. This session verified the acceptance criteria: a store-level test
+(`src/state/gameStore.test.ts`, "M3 acceptance") confirms the free action
+("Arrange Ikebana" in HouseholdScreen) feeds the arrangement score into
+Taste and spends an action; a component test
+(`src/minigames/ikebana/IkebanaGame.test.tsx`) confirms it's playable with
+tap-only placement/removal and a live score. The "checked event
+performance" integration (`node.ikebana` in the scene engine, `SceneRunner`)
+is also wired and exercised by the month-8 Tsukimi content (pending
+re-verification with the rest of months 7/8/11, see below).
+
+M0, M1, M1.5, and M2 are also accepted.
 
 ## What's next
 
-- **M3 — Ikebana** (GAME_DESIGN.md §14), then **M4a** (poem builder UI,
-  intro director, the v0.6 eight-love-interest roster).
+- **M4a — Romance engine + first routes** (GAME_DESIGN.md §14): intro
+  director, hidden Interest, the v0.6 eight-love-interest roster, poem
+  composer wiring, two complete routes.
+- Note: `src/minigames/raking/RakingGame.tsx` (M5's mini game) is also
+  already built and wired into HouseholdScreen, ahead of order — same
+  "leave in place, verify later" treatment as months 7/8/11 below.
 - Month 3's anchor event (Cherry-Blossom Banquet & Utaawase) has no
   `sceneId` yet — it's the first piece of M3/M4a content.
 

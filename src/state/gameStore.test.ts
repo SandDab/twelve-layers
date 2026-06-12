@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
+import { scoreArrangement } from '../engine/ikebana';
 import { ENVY_RIPPLE_FLAG, ENVY_SCENE_ID } from '../engine/household';
 import { createInitialSave } from '../engine/types';
 import { useGameStore } from './gameStore';
@@ -120,5 +121,28 @@ describe('M2 acceptance', () => {
     expect(state.rippleQueue).not.toContainEqual(
       expect.objectContaining({ sceneId: 'kanzashi_kobai_delivery' }),
     );
+  });
+});
+
+describe('M3 acceptance', () => {
+  it('arranging ikebana as a free action feeds the score into Taste and spends an action', () => {
+    useGameStore.getState().chooseClass('old_name', 'female');
+    useGameStore.getState().setMonthYear(1, 1); // spring
+
+    // A balanced, in-season, ideally-filled spring arrangement (the same
+    // fixture as engine/ikebana.test.ts's top-score case).
+    const slots = ['plum_branch', 'cherry_spray', 'violet', 'plum_branch', 'cherry_spray', null, null];
+    const result = scoreArrangement(slots, 1);
+    expect(result.tasteDelta).toBe(5);
+
+    const before = useGameStore.getState();
+    const tasteBefore = before.attributes.taste;
+    const actionsBefore = before.actionsRemaining;
+
+    useGameStore.getState().practiceIkebana(result.tasteDelta);
+
+    const after = useGameStore.getState();
+    expect(after.attributes.taste).toBe(tasteBefore + result.tasteDelta);
+    expect(after.actionsRemaining).toBe(actionsBefore - 1);
   });
 });
