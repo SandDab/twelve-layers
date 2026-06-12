@@ -221,4 +221,42 @@ describe('schema migration', () => {
     expect(loaded.romance.sharpBrush.stage).toBe(1);
     expect(loaded.romance.fadedBranch.stage).toBe(1);
   });
+
+  it('migrates a v7 save (no pcGender/kanzashiGifted/introDirector/married) to v8 with §13 defaults', () => {
+    const v7Save = {
+      schemaVersion: 7,
+      classId: 'governors_heir',
+      year: 1,
+      month: 5,
+      tokimeki: 12,
+      tokimekiHistory: {},
+      attributes: { rank: 0, charisma: 10, allure: 10, rhetoric: 10, taste: 10 },
+      resources: { koku: 100, composure: 100 },
+      favors: {},
+      flags: {},
+      rippleQueue: [],
+      pendingGossip: [],
+      factionReputation: { regent: 0, rivalHouses: 0, imperial: 0, clergy: 0 },
+      sceneProgress: {},
+      staff: { steward: false, poetTutor: false, gardener: false, seamstress: false },
+      wardrobe: { owned: [], equipped: null },
+      actionsRemaining: 3,
+      kanzashiOwned: [],
+      kanzashiEquipped: null,
+      kanzashiAssignments: {},
+      kanzashiSeed: 1,
+      romance: {},
+      poemDisplayMode: 'romaji',
+      jimokuResult: null,
+      debug: false,
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(v7Save));
+
+    const loaded = loadSave();
+    expect(loaded.schemaVersion).toBe(CURRENT_SAVE_SCHEMA_VERSION);
+    expect(loaded.pcGender).toBeNull();
+    expect(loaded.kanzashiGifted).toEqual({});
+    expect(loaded.introDirector).toEqual({ introsThisYear: 0 });
+    expect(loaded.married).toBeNull();
+  });
 });

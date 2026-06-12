@@ -48,6 +48,13 @@ function migrate(raw: unknown): Save {
     };
   }
 
+  if (save.schemaVersion < 8) {
+    // v8 (GAME_DESIGN.md §13 reconciliation): pcGender, kanzashiGifted,
+    // introDirector, and married are new fields with sensible empty
+    // defaults, filled by the createInitialSave() merge below.
+    save = { ...save, schemaVersion: 8 };
+  }
+
   return { ...createInitialSave(), ...save, schemaVersion: CURRENT_SAVE_SCHEMA_VERSION };
 }
 

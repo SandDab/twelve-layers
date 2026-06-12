@@ -30,6 +30,19 @@ export type IkebanaPerformance = {
   failNode: NodeId;
 };
 
+/**
+ * Dynamic dialogue socket (GAME_DESIGN.md §17, deferred feature). In v0.1
+ * the engine always renders `fallbackBody` in place of `body` - dynamic
+ * generation is a post-v0.1 feature and never gates progression or
+ * mutates state. `body` should still be set to the same text as
+ * `fallbackBody` so the node reads correctly wherever `dynamic` is
+ * unsupported.
+ */
+export type DynamicSocket = {
+  promptId: string;
+  fallbackBody: string;
+};
+
 export type SceneNode = {
   id: NodeId;
   speaker?: string;
@@ -37,6 +50,7 @@ export type SceneNode = {
   choices?: Choice[];
   next?: NodeId;
   ikebana?: IkebanaPerformance;
+  dynamic?: DynamicSocket;
 };
 
 export type Scene = {

@@ -48,6 +48,13 @@ export function lintScenes(scenes: Record<string, Scene>): string[] {
         errors.push(`${scene.id}/${node.id}: next "${node.next}" does not exist`);
       }
 
+      if (node.dynamic && !node.dynamic.fallbackBody) {
+        errors.push(
+          `${scene.id}/${node.id}: dynamic node has no fallbackBody (GAME_DESIGN.md §17: every dynamic node ` +
+            `needs a fully playable authored fallback)`,
+        );
+      }
+
       if (node.ikebana) {
         if (!scene.nodes[node.ikebana.successNode]) {
           errors.push(`${scene.id}/${node.id}: ikebana successNode "${node.ikebana.successNode}" does not exist`);

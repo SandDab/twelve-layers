@@ -30,7 +30,7 @@ export function SceneRunner({ scene, onComplete }: SceneRunnerProps) {
     return (
       <section className="card scene-card">
         <p className="scene-speaker">{node.speaker ?? scene.title}</p>
-        <p>{node.body}</p>
+        <p>{node.dynamic ? node.dynamic.fallbackBody : node.body}</p>
         <p className="scene-complete-note">— end of scene —</p>
       </section>
     );
@@ -63,7 +63,7 @@ export function SceneRunner({ scene, onComplete }: SceneRunnerProps) {
   return (
     <section className="card scene-card">
       <p className="scene-speaker">{node.speaker ?? scene.title}</p>
-      <p>{node.body}</p>
+      <p>{node.dynamic ? node.dynamic.fallbackBody : node.body}</p>
 
       {node.ikebana && <IkebanaGame month={month} onSubmit={submitIkebana} />}
 

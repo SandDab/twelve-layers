@@ -92,6 +92,27 @@ describe('lintScenes', () => {
     expect(lintScenes(scenes)).toEqual(['bad/a: choice "bad check" checks unknown attribute "luck"']);
   });
 
+  it('flags a dynamic node with no fallbackBody', () => {
+    const scenes: Record<string, Scene> = {
+      bad: {
+        id: 'bad',
+        title: 'Bad',
+        startNode: 'a',
+        nodes: {
+          a: {
+            id: 'a',
+            body: '',
+            dynamic: { promptId: 'poem_reply', fallbackBody: '' },
+          },
+        },
+      },
+    };
+
+    expect(lintScenes(scenes)).toEqual([
+      'bad/a: dynamic node has no fallbackBody (GAME_DESIGN.md §17: every dynamic node needs a fully playable authored fallback)',
+    ]);
+  });
+
   it('flags an ifClass referencing an unknown class', () => {
     const scenes: Record<string, Scene> = {
       bad: {
@@ -162,8 +183,15 @@ describe('lintClasses', () => {
 });
 
 describe('lintThemeTagCoverage', () => {
-  it('passes for the registered scene content', () => {
-    expect(lintThemeTagCoverage(SCENES)).toEqual([]);
+  // Per-event theme-tag coverage is warn-level until M5 and error-level
+  // from M5 onward (REALIGNMENT.md Phase 2 step 4 / CLAUDE.md). Flip the
+  // branch below to a bare `expect(...).toEqual([])` once M5 content
+  // (months 4/7/8) is authored.
+  it('passes for the registered scene content (warn-level until M5)', () => {
+    const issues = lintThemeTagCoverage(SCENES);
+    if (issues.length > 0) {
+      console.warn(`[content-lint] theme-tag coverage gaps (error-level at M5):\n${issues.join('\n')}`);
+    }
   });
 
   it('flags a scene with themeTags that does not cover all four tags', () => {

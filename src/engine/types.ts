@@ -54,6 +54,24 @@ export type WardrobeState = {
 /** The four family-background classes (GAME_DESIGN.md §2). */
 export type ClassId = 'governors_heir' | 'judges_child' | 'old_name' | 'salon_child';
 
+/**
+ * PC gender, chosen at the class picker (GAME_DESIGN.md §2). Either PC
+ * gender romances any love interest with identical mechanics; gender is
+ * flavor and kanzashi-gifting framing only, never a mechanical gate.
+ * Null until the M1.5 gender select is wired up; new-game flow sets it.
+ */
+export type PcGender = 'male' | 'female';
+
+/**
+ * Intro director state (GAME_DESIGN.md §6 "Introduction pacing"). Stubbed
+ * with a sensible empty default until the M4a intro director is built.
+ */
+export type IntroDirectorState = {
+  introsThisYear: number;
+  lastIntroMonth?: number;
+  queued?: string;
+};
+
 /** Kanzashi theme tags (GAME_DESIGN.md §8) — metadata on existing choices. */
 export type ThemeTag = 'principle' | 'restraint' | 'alignment' | 'grace';
 
@@ -122,12 +140,14 @@ export type JimokuResult = {
   rankGain: number;
 };
 
-export const CURRENT_SAVE_SCHEMA_VERSION = 7;
+export const CURRENT_SAVE_SCHEMA_VERSION = 8;
 
 export type Save = {
   schemaVersion: number;
   // null until the new-game class picker is completed; permanent thereafter.
   classId: ClassId | null;
+  // null until the M1.5 gender select is completed; permanent thereafter.
+  pcGender: PcGender | null;
   year: number;
   month: number; // 1-12
   tokimeki: number; // resets to 0 at New Year (month 12 -> 1 rollover)
@@ -153,9 +173,19 @@ export type Save = {
   kanzashiEquipped: string | null;
   kanzashiAssignments: Record<string, number>; // kanzashiId -> assigned month this year
   kanzashiSeed: number;
+  // kanzashiId -> loveInterestId, once gifted and accepted (M4a+). Stubbed
+  // empty until kanzashi gifting is built.
+  kanzashiGifted: Record<string, string>;
 
   // Romance (GAME_DESIGN.md §6): per-candidate stage and exchange state.
   romance: Record<CandidateId, RomanceState>;
+
+  // Intro director pacing state (GAME_DESIGN.md §6). Stubbed until M4a.
+  introDirector: IntroDirectorState;
+
+  // loveInterestId once married (M4a+), activating their household buff.
+  // Stubbed null until romance reaches Commitment.
+  married: string | null;
 
   // Poem display mode (GAME_DESIGN.md §6): Romaji/Gloss/Immersion.
   poemDisplayMode: PoemDisplayMode;
@@ -200,6 +230,7 @@ export function createInitialSave(): Save {
   return {
     schemaVersion: CURRENT_SAVE_SCHEMA_VERSION,
     classId: null,
+    pcGender: null,
     year: 1,
     month: 1,
     tokimeki: 0,
@@ -219,10 +250,13 @@ export function createInitialSave(): Save {
     kanzashiEquipped: null,
     kanzashiAssignments: {},
     kanzashiSeed: 1,
+    kanzashiGifted: {},
     romance: Object.fromEntries(CANDIDATE_IDS.map((id) => [id, createInitialRomanceState()])) as Record<
       CandidateId,
       RomanceState
     >,
+    introDirector: { introsThisYear: 0 },
+    married: null,
     poemDisplayMode: 'romaji',
     jimokuResult: null,
     debug: false,
