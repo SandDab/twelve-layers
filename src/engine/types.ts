@@ -135,6 +135,9 @@ export type Save = {
   kanzashiAssignments: Record<string, number>; // kanzashiId -> assigned month this year
   kanzashiSeed: number;
 
+  // Romance (GAME_DESIGN.md §6): per-candidate stage and exchange state.
+  romance: Record<CandidateId, RomanceState>;
+
   debug: boolean;
 };
 
@@ -190,6 +193,10 @@ export function createInitialSave(): Save {
     kanzashiEquipped: null,
     kanzashiAssignments: {},
     kanzashiSeed: 1,
+    romance: Object.fromEntries(CANDIDATE_IDS.map((id) => [id, createInitialRomanceState()])) as Record<
+      CandidateId,
+      RomanceState
+    >,
     debug: false,
   };
 }

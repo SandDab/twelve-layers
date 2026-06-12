@@ -3,19 +3,11 @@
 
 import { KANZASHI, KANZASHI_IDS, type KanzashiId } from '../content/kanzashi';
 import { addMonths } from './effects';
+import { fnv1a } from './fnv';
 import type { Save, ThemeTag } from './types';
 
 /** v0.1 assignment pool: the six anchor-event months (GAME_DESIGN.md §9). */
 export const KANZASHI_MONTH_POOL = [1, 3, 4, 7, 8, 11];
-
-function fnv1a(str: string): number {
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < str.length; i++) {
-    hash ^= str.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193);
-  }
-  return hash >>> 0;
-}
 
 function seededShuffle<T>(arr: T[], seed: number, year: number): T[] {
   const result = [...arr];
