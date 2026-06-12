@@ -66,6 +66,13 @@ function migrate(raw: unknown): Save {
     save = { ...rest, schemaVersion: 9 } as Save;
   }
 
+  if (save.schemaVersion < 10) {
+    // v10 (M4a): themeTagCounts is a new lifetime behavior record feeding
+    // the intro director's relevance scoring. The createInitialSave()
+    // merge below fills it with zeroes for pre-v10 saves.
+    save = { ...save, schemaVersion: 10 };
+  }
+
   return { ...createInitialSave(), ...save, schemaVersion: CURRENT_SAVE_SCHEMA_VERSION };
 }
 

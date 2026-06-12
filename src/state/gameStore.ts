@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { computeComposureCap } from '../content/classes';
+import { LOVE_INTERESTS } from '../content/loveInterests';
 import { getRobe } from '../content/robes';
 import { STAFF_DEFINITIONS } from '../content/staff';
 import { applyEffects } from '../engine/effects';
@@ -9,6 +10,7 @@ import {
   computeTrainGain,
   TRAIN_COMPOSURE_COST,
 } from '../engine/household';
+import { recordThemeTags } from '../engine/introDirector';
 import { applyKanzashiAttrBonuses, checkKanzashiAward } from '../engine/kanzashi';
 import { applyClass } from '../engine/newGame';
 import { consumeRipple } from '../engine/ripples';
@@ -74,7 +76,13 @@ const SAVE_FIELDS = [
   'kanzashiEquipped',
   'kanzashiAssignments',
   'kanzashiSeed',
+  'kanzashiGifted',
   'romance',
+  'introDirector',
+  'married',
+  'themeTagCounts',
+  'poemDisplayMode',
+  'jimokuResult',
   'debug',
 ] as const;
 
@@ -182,7 +190,8 @@ export const useGameStore = create<GameState>((set) => ({
   checkKanzashiAward: (themeTags) =>
     set((state) => {
       const save = extractSave(state);
-      const next = checkKanzashiAward(save, themeTags);
+      let next = checkKanzashiAward(save, themeTags);
+      next = recordThemeTags(next, themeTags, Object.values(LOVE_INTERESTS));
       if (next === save) return state;
       writeSave(next);
       return next;

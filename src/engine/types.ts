@@ -21,7 +21,9 @@ export type Effect =
   | { kind: 'flag'; flag: string; value: boolean }
   | { kind: 'ripple'; triggerMonth: number; sceneId: string; ifFlags?: string[] }
   | { kind: 'gossip'; tag: string; factionDeltas: Partial<Record<FactionId, number>>; delayMonths: 1 | 2 }
-  | { kind: 'kanzashi'; id: string };
+  | { kind: 'kanzashi'; id: string }
+  | { kind: 'romance'; loveInterestId: string; interestDelta?: number; stage?: number; closed?: boolean }
+  | { kind: 'courtshipSignal'; signal: 'acclaim' | 'deference' };
 
 export type RippleEntry = {
   triggerYear: number;
@@ -76,6 +78,66 @@ export type IntroDirectorState = {
 export type ThemeTag = 'principle' | 'restraint' | 'alignment' | 'grace';
 
 /**
+ * A small, always-on benefit (GAME_DESIGN.md §13). Used by kanzashi
+ * (dormant until gifted/equipped) and by love-interest marriage buffs
+ * (household-wide, never surfaced in UI).
+ */
+export type PassiveModifier =
+  | { kind: 'attrBonus'; attr: AttributeKey; amount: number }
+  | { kind: 'composureCapMult'; mult: number }
+  | { kind: 'gossipMultiplier'; tag: string; mult: number }
+  | { kind: 'factionRepMult'; faction: FactionId; mult: number }
+  | { kind: 'kokuStipend'; amount: number }
+  | { kind: 'tokimekiMult'; mult: number }
+  | { kind: 'rippleIntercept'; perSeason: number }
+  | { kind: 'composureRegen'; amount: number }
+  | { kind: 'kasaneProtection' }
+  | { kind: 'envyWeaken'; mult: number }
+  | { kind: 'imperialFavor'; tier: number };
+
+/** The v0.6 eight-love-interest roster (GAME_DESIGN.md §6). All missable, all available to either PC. */
+export type LoveInterestId =
+  | 'climber'
+  | 'widow'
+  | 'sole_heir'
+  | 'riverbank'
+  | 'captain'
+  | 'devotee'
+  | 'second_prince'
+  | 'merchant';
+
+export const LOVE_INTEREST_IDS: LoveInterestId[] = [
+  'climber',
+  'widow',
+  'sole_heir',
+  'riverbank',
+  'captain',
+  'devotee',
+  'second_prince',
+  'merchant',
+];
+
+/**
+ * A love interest's definition (GAME_DESIGN.md §13/§6). `introConditions`
+ * feeds the intro director's relevance scoring; `criticalChoice` is the
+ * unmarked route-defining scene, placed at a different stage per route;
+ * `buff` activates household-wide on marriage and is never surfaced in UI.
+ */
+export type LoveInterest = {
+  id: LoveInterestId;
+  name: string;
+  archetype: string;
+  introConditions: { tags?: ThemeTag[]; minAttrs?: Partial<Record<AttributeKey, number>>; flags?: string[] };
+  caresAboutStyle: boolean;
+  acclaim: -1 | 0 | 1;
+  deference: -1 | 0 | 1;
+  criticalChoice: { sceneId: string; stage: 2 | 3 | 4 | 5 };
+  valuedTags: ThemeTag[];
+  kanzashiAffinity: ThemeTag;
+  buff: PassiveModifier[];
+};
+
+/**
  * Per-love-interest romance progress (GAME_DESIGN.md §13), keyed by
  * loveInterestId. Empty until the v0.6 8-LI roster and intro director
  * are built (M4a+).
@@ -126,7 +188,7 @@ export type JimokuResult = {
   rankGain: number;
 };
 
-export const CURRENT_SAVE_SCHEMA_VERSION = 9;
+export const CURRENT_SAVE_SCHEMA_VERSION = 10;
 
 export type Save = {
   schemaVersion: number;
@@ -169,6 +231,11 @@ export type Save = {
 
   // Intro director pacing state (GAME_DESIGN.md §6). Stubbed until M4a.
   introDirector: IntroDirectorState;
+
+  // Lifetime counts of themeTags on chosen choices (GAME_DESIGN.md §6):
+  // feeds the intro director's relevance scoring. Persists across years
+  // (it is a behavior record, not a per-year tally).
+  themeTagCounts: Record<ThemeTag, number>;
 
   // loveInterestId once married (M4a+), activating their household buff.
   // Stubbed null until romance reaches Commitment.
@@ -240,6 +307,7 @@ export function createInitialSave(): Save {
     kanzashiGifted: {},
     romance: {},
     introDirector: { introsThisYear: 0 },
+    themeTagCounts: { principle: 0, restraint: 0, alignment: 0, grace: 0 },
     married: null,
     poemDisplayMode: 'romaji',
     jimokuResult: null,

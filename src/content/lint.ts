@@ -2,7 +2,8 @@ import type { ClassDef } from './classes';
 import type { KanzashiDef, KanzashiId } from './kanzashi';
 import { getRobe } from './robes';
 import type { Scene } from '../engine/scene';
-import type { AttributeKey, ClassId, FactionId, ThemeTag } from '../engine/types';
+import type { AttributeKey, ClassId, FactionId, LoveInterest, LoveInterestId, ThemeTag } from '../engine/types';
+import { LOVE_INTEREST_IDS } from '../engine/types';
 
 const VALID_ATTRIBUTES: readonly AttributeKey[] = ['rank', 'charisma', 'allure', 'rhetoric', 'taste'];
 
@@ -258,6 +259,55 @@ export function lintCandidates(
     for (const tag of candidate.tastes) {
       if (!validTags.has(tag)) {
         errors.push(`candidate "${candidate.id}": taste "${tag}" does not match any poem fragment imagery tag`);
+      }
+    }
+  }
+
+  return errors;
+}
+
+/**
+ * Validate the love-interest roster (GAME_DESIGN.md §6/§13): all eight
+ * loveInterestIds must be present with distinct ids, each criticalChoice
+ * must reference a registered scene, and valuedTags/kanzashiAffinity must
+ * be real theme tags.
+ */
+export function lintLoveInterests(
+  loveInterests: Record<string, LoveInterest>,
+  scenes: Record<string, Scene>,
+): string[] {
+  const errors: string[] = [];
+
+  for (const id of LOVE_INTEREST_IDS) {
+    if (!loveInterests[id]) {
+      errors.push(`loveInterests: missing definition for "${id}"`);
+    }
+  }
+
+  for (const def of Object.values(loveInterests)) {
+    if (!LOVE_INTEREST_IDS.includes(def.id as LoveInterestId)) {
+      errors.push(`loveInterest "${def.id}": not one of the eight v0.6 roster ids`);
+    }
+
+    if (!scenes[def.criticalChoice.sceneId]) {
+      errors.push(
+        `loveInterest "${def.id}": criticalChoice references unregistered scene "${def.criticalChoice.sceneId}"`,
+      );
+    }
+
+    for (const tag of def.valuedTags) {
+      if (!VALID_THEME_TAGS.includes(tag)) {
+        errors.push(`loveInterest "${def.id}": valuedTags has unknown themeTag "${tag}"`);
+      }
+    }
+
+    if (!VALID_THEME_TAGS.includes(def.kanzashiAffinity)) {
+      errors.push(`loveInterest "${def.id}": unknown kanzashiAffinity "${def.kanzashiAffinity}"`);
+    }
+
+    for (const tag of def.introConditions.tags ?? []) {
+      if (!VALID_THEME_TAGS.includes(tag)) {
+        errors.push(`loveInterest "${def.id}": introConditions.tags has unknown themeTag "${tag}"`);
       }
     }
   }

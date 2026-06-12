@@ -76,6 +76,49 @@ describe('applyEffects', () => {
     expect(save.kanzashiOwned).toEqual(['kobai']);
   });
 
+  it('applies a romance effect, creating the record on first contact', () => {
+    const save = applyEffects(
+      [{ kind: 'romance', loveInterestId: 'riverbank', stage: 1, interestDelta: 4 }],
+      createInitialSave(),
+    );
+    expect(save.romance.riverbank).toEqual({ stage: 1, interest: 4, closed: false, introFired: false });
+  });
+
+  it('applies a romance effect, accumulating interest and overriding stage/closed on an existing record', () => {
+    const base = {
+      ...createInitialSave(),
+      romance: { riverbank: { stage: 2, interest: 6, closed: false, introFired: true } },
+    };
+    const save = applyEffects(
+      [{ kind: 'romance', loveInterestId: 'riverbank', stage: 3, interestDelta: -2, closed: true }],
+      base,
+    );
+    expect(save.romance.riverbank).toEqual({ stage: 3, interest: 4, closed: true, introFired: true });
+  });
+
+  it('applies a courtshipSignal effect to open courtships per their acclaim/deference profile', () => {
+    // The Riverbank Girl dislikes acclaim (acclaim: -1) and the Devotee
+    // welcomes deference (deference: 1); the Captain (acclaim: 1) is not
+    // yet introduced and should be untouched.
+    const base = {
+      ...createInitialSave(),
+      romance: {
+        riverbank: { stage: 1, interest: 0, closed: false, introFired: true },
+        devotee: { stage: 1, interest: 0, closed: false, introFired: true },
+        captain: { stage: 0, interest: 0, closed: false, introFired: false },
+      },
+    };
+
+    const afterAcclaim = applyEffects([{ kind: 'courtshipSignal', signal: 'acclaim' }], base);
+    expect(afterAcclaim.romance.riverbank.interest).toBe(-3);
+    expect(afterAcclaim.romance.devotee.interest).toBe(-3);
+    expect(afterAcclaim.romance.captain.interest).toBe(0);
+
+    const afterDeference = applyEffects([{ kind: 'courtshipSignal', signal: 'deference' }], base);
+    expect(afterDeference.romance.devotee.interest).toBe(3);
+    expect(afterDeference.romance.riverbank.interest).toBe(0);
+  });
+
   it('threads multiple effects through in order', () => {
     const save = applyEffects(
       [

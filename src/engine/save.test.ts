@@ -257,6 +257,45 @@ describe('schema migration', () => {
     expect(loaded.romance).toEqual({});
   });
 
+  it('migrates a v9 save (no themeTagCounts) to v10 with a zeroed behavior record', () => {
+    const v9Save = {
+      schemaVersion: 9,
+      classId: 'governors_heir',
+      pcGender: 'female',
+      year: 1,
+      month: 5,
+      tokimeki: 12,
+      tokimekiHistory: {},
+      attributes: { rank: 0, charisma: 10, allure: 10, rhetoric: 10, taste: 10 },
+      resources: { koku: 100, composure: 100 },
+      favors: {},
+      flags: {},
+      rippleQueue: [],
+      pendingGossip: [],
+      factionReputation: { regent: 0, rivalHouses: 0, imperial: 0, clergy: 0 },
+      sceneProgress: {},
+      staff: { steward: false, poetTutor: false, gardener: false, seamstress: false },
+      wardrobe: { owned: [], equipped: null },
+      actionsRemaining: 3,
+      kanzashiOwned: [],
+      kanzashiEquipped: null,
+      kanzashiAssignments: {},
+      kanzashiSeed: 1,
+      kanzashiGifted: {},
+      romance: {},
+      introDirector: { introsThisYear: 0 },
+      married: null,
+      poemDisplayMode: 'romaji',
+      jimokuResult: null,
+      debug: false,
+    };
+    localStorage.setItem(SAVE_KEY, JSON.stringify(v9Save));
+
+    const loaded = loadSave();
+    expect(loaded.schemaVersion).toBe(CURRENT_SAVE_SCHEMA_VERSION);
+    expect(loaded.themeTagCounts).toEqual({ principle: 0, restraint: 0, alignment: 0, grace: 0 });
+  });
+
   it('migrates a v7 save (no pcGender/kanzashiGifted/introDirector/married) to v8 with §13 defaults', () => {
     const v7Save = {
       schemaVersion: 7,

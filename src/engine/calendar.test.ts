@@ -42,6 +42,19 @@ describe('tickCalendar', () => {
     expect(next.rippleQueue).toEqual(save.rippleQueue);
   });
 
+  it('resets introDirector.introsThisYear at year rollover, preserving lastIntroMonth and queued', () => {
+    const save = {
+      ...createInitialSave(),
+      month: 12,
+      year: 1,
+      introDirector: { introsThisYear: 2, lastIntroMonth: 10, queued: 'merchant' },
+    };
+
+    const next = tickCalendar(save);
+
+    expect(next.introDirector).toEqual({ introsThisYear: 0, lastIntroMonth: 10, queued: 'merchant' });
+  });
+
   it('accumulates a multi-year tokimeki history', () => {
     let save = { ...createInitialSave(), month: 12, year: 1, tokimeki: 10 };
     save = tickCalendar(save); // -> year 2, history[1] = 10

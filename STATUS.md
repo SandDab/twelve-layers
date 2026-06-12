@@ -17,11 +17,52 @@ re-verification with the rest of months 7/8/11, see below).
 
 M0, M1, M1.5, and M2 are also accepted.
 
+## In progress
+
+**M4a — Romance engine** (GAME_DESIGN.md §6/§13/§14), engine half done,
+route content pending (see "What's next"). This session added:
+
+- `src/engine/types.ts`: `LoveInterest`/`LoveInterestId`/`LOVE_INTEREST_IDS`
+  (the v0.6 eight-route roster), `PassiveModifier` (generalizes
+  `KanzashiPassive` to also cover marriage buffs), `Save.themeTagCounts`
+  (lifetime per-`ThemeTag` counter feeding intro relevance), and two new
+  `Effect` kinds: `romance` (direct stage/interest/closed mutation) and
+  `courtshipSignal` (`acclaim`/`deference`, applies ±3 interest to all open
+  courtships per each LI's response profile). Schema bumped 9 -> 10
+  (`save.ts` migration default-fills `themeTagCounts`).
+- `src/content/loveInterests.ts`: all 8 `LOVE_INTEREST` defs (intro
+  conditions, acclaim/deference signs, valued tags, kanzashi affinity,
+  critical-choice scene id + stage, marriage buffs).
+- `src/engine/introDirector.ts`: `runIntroDirector` (annual cap 3, min
+  2-month gap, pity timer at month 6, relevance scoring off
+  `themeTagCounts`, concurrency cap of 2 with a queue for a 3rd, shuts off
+  once `save.married` is set, `introsThisYear` reset at year rollover via
+  `tickCalendar`), `recordThemeTags` (accumulates `themeTagCounts` and
+  grants `+2` interest to open courtships whose `valuedTags` overlap),
+  `applyCourtshipSignal`.
+- `src/content/scenes/romanceCriticalStubs.ts`: 8 TODO-stub critical-choice
+  scenes (`romance_{id}_critical`), registered and content-lint-validated.
+- `src/content/lint.ts`: `lintLoveInterests` validates the roster against
+  the scene registry and `ThemeTag` vocabulary.
+- `src/ui/DebugPanel.tsx`: Theme tag counts (+1 per tag), Intro director
+  status, Romance state list with `+acclaim`/`+deference` signal buttons,
+  Tick Month.
+- Fixed a latent bug in `gameStore.ts`'s `SAVE_FIELDS` that was dropping
+  `kanzashiGifted`, `introDirector`, `married`, `themeTagCounts`,
+  `poemDisplayMode`, and `jimokuResult` on every `set()` (so these never
+  persisted to `localStorage`).
+
+Verified via `tsc -b`, `eslint`, `vitest` (149/149), `npm run build`, and a
+debug-panel playtest at 390x844: bumping `grace` to 3 and ticking the month
+fired `climber`'s intro (`stage 1, interest 3, introFired: true`,
+`introsThisYear: 1`), and `+acclaim`/`+deference` correctly adjusted
+interest per profile.
+
 ## What's next
 
-- **M4a — Romance engine + first routes** (GAME_DESIGN.md §14): intro
-  director, hidden Interest, the v0.6 eight-love-interest roster, poem
-  composer wiring, two complete routes.
+- **M4a route content** (GAME_DESIGN.md §14): poem composer wiring and two
+  complete routes (Riverbank Girl + Second Prince recommended), replacing
+  their critical-choice stubs with full content.
 - Note: `src/minigames/raking/RakingGame.tsx` (M5's mini game) is also
   already built and wired into HouseholdScreen, ahead of order — same
   "leave in place, verify later" treatment as months 7/8/11 below.

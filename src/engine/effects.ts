@@ -1,5 +1,7 @@
 import { computeComposureCap } from '../content/classes';
-import type { Effect, GossipEntry, RippleEntry, Save } from './types';
+import { LOVE_INTERESTS } from '../content/loveInterests';
+import { applyCourtshipSignal } from './introDirector';
+import type { Effect, GossipEntry, RippleEntry, RomanceState, Save } from './types';
 
 /** Add `delta` months to a year/month pair, rolling over at 12. */
 export function addMonths(year: number, month: number, delta: number): { year: number; month: number } {
@@ -68,6 +70,30 @@ function applyEffect(effect: Effect, save: Save): Save {
     case 'kanzashi':
       if (save.kanzashiOwned.includes(effect.id)) return save;
       return { ...save, kanzashiOwned: [...save.kanzashiOwned, effect.id] };
+
+    case 'romance': {
+      const existing: RomanceState = save.romance[effect.loveInterestId] ?? {
+        stage: 0,
+        interest: 0,
+        closed: false,
+        introFired: false,
+      };
+      return {
+        ...save,
+        romance: {
+          ...save.romance,
+          [effect.loveInterestId]: {
+            ...existing,
+            stage: effect.stage ?? existing.stage,
+            interest: existing.interest + (effect.interestDelta ?? 0),
+            closed: effect.closed ?? existing.closed,
+          },
+        },
+      };
+    }
+
+    case 'courtshipSignal':
+      return applyCourtshipSignal(save, effect.signal, Object.values(LOVE_INTERESTS));
 
     case 'gossip': {
       const { year: triggerYear, month: triggerMonth } = addMonths(

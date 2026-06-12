@@ -6,11 +6,13 @@ import {
   lintCandidates,
   lintClasses,
   lintKanzashi,
+  lintLoveInterests,
   lintNoEmDashes,
   lintPoemFragments,
   lintScenes,
   lintThemeTagCoverage,
 } from './lint';
+import { LOVE_INTERESTS } from './loveInterests';
 import { POEM_FRAGMENTS } from './poems';
 import { SCENES } from './scenes';
 
@@ -286,6 +288,26 @@ describe('lintNoEmDashes', () => {
     expect(lintNoEmDashes(scenes)).toEqual([
       'bad/a: body contains an em dash or en dash',
       'bad/a: choice text "An en dash – here." contains an em dash or en dash',
+    ]);
+  });
+});
+
+describe('lintLoveInterests', () => {
+  it('passes for the registered love interest roster', () => {
+    expect(lintLoveInterests(LOVE_INTERESTS, SCENES)).toEqual([]);
+  });
+
+  it('flags a missing roster entry and an unregistered criticalChoice scene', () => {
+    const { climber, ...rest } = LOVE_INTERESTS;
+    const loveInterests = {
+      ...rest,
+      widow: { ...LOVE_INTERESTS.widow, criticalChoice: { sceneId: 'm99_missing', stage: 4 as const } },
+    };
+    void climber;
+
+    expect(lintLoveInterests(loveInterests, SCENES)).toEqual([
+      'loveInterests: missing definition for "climber"',
+      'loveInterest "widow": criticalChoice references unregistered scene "m99_missing"',
     ]);
   });
 });

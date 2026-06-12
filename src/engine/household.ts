@@ -1,10 +1,12 @@
 import { CLASSES } from '../content/classes';
 import { KANZASHI, type KanzashiId } from '../content/kanzashi';
+import { LOVE_INTERESTS } from '../content/loveInterests';
 import { getRobe } from '../content/robes';
 import { STAFF_DEFINITIONS } from '../content/staff';
 import { getTokimekiTier } from '../content/tokimekiTiers';
 import { tickCalendar } from './calendar';
 import { addMonths, applyEffects } from './effects';
+import { runIntroDirector } from './introDirector';
 import { applyJimoku } from './jimoku';
 import { resolveDueGossip } from './ripples';
 import { BASE_FREE_ACTIONS, type AttributeKey, type ClassId, type Save, type StaffRole } from './types';
@@ -119,7 +121,8 @@ export function applyTokimekiEnvyTrigger(save: Save): Save {
  * Composed end-of-month step: wardrobe effects for the closing month,
  * the envy-tier check, income, the jimoku (on the month-12 close, before
  * Tokimeki resets), the calendar tick (incl. year rollover and Tokimeki
- * reset), due gossip resolution, and next month's free action allowance.
+ * reset), due gossip resolution, the intro director (GAME_DESIGN.md §6,
+ * for the new month), and next month's free action allowance.
  */
 export function applyMonthEnd(save: Save): Save {
   let next = applyWardrobeEffects(save);
@@ -136,6 +139,7 @@ export function applyMonthEnd(save: Save): Save {
   }
   next = tickCalendar(next);
   next = resolveDueGossip(next);
+  next = runIntroDirector(next, Object.values(LOVE_INTERESTS));
   next = { ...next, actionsRemaining: computeFreeActions(next.tokimeki) };
   return next;
 }

@@ -13,6 +13,16 @@ import { m7Tanabata } from './m7Tanabata';
 import { m8Tsukimi } from './m8Tsukimi';
 import { m11Gosechi } from './m11Gosechi';
 import { oldNameDebt } from './oldNameDebt';
+import {
+  romanceCaptainCritical,
+  romanceClimberCritical,
+  romanceDevoteeCritical,
+  romanceMerchantCritical,
+  romanceRiverbankCritical,
+  romanceSecondPrinceCritical,
+  romanceSoleHeirCritical,
+  romanceWidowCritical,
+} from './romanceCriticalStubs';
 
 export const SCENES: Record<string, Scene> = {
   [m1NewYear.id]: m1NewYear,
@@ -27,6 +37,14 @@ export const SCENES: Record<string, Scene> = {
   [kanzashiTsukikageDelivery.id]: kanzashiTsukikageDelivery,
   [kanzashiFujiDelivery.id]: kanzashiFujiDelivery,
   [kanzashiSangoDelivery.id]: kanzashiSangoDelivery,
+  [romanceClimberCritical.id]: romanceClimberCritical,
+  [romanceWidowCritical.id]: romanceWidowCritical,
+  [romanceSoleHeirCritical.id]: romanceSoleHeirCritical,
+  [romanceRiverbankCritical.id]: romanceRiverbankCritical,
+  [romanceCaptainCritical.id]: romanceCaptainCritical,
+  [romanceDevoteeCritical.id]: romanceDevoteeCritical,
+  [romanceSecondPrinceCritical.id]: romanceSecondPrinceCritical,
+  [romanceMerchantCritical.id]: romanceMerchantCritical,
 };
 
 export function getScene(id: string): Scene | undefined {

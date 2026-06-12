@@ -23,5 +23,6 @@ export function tickCalendar(save: Save): Save {
     tokimeki: 0,
     tokimekiHistory: { ...save.tokimekiHistory, [save.year]: save.tokimeki },
     kanzashiAssignments: assignKanzashiMonths(save.kanzashiSeed, nextYear),
+    introDirector: { ...save.introDirector, introsThisYear: 0 },
   };
 }
