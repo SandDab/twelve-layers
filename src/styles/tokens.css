@@ -306,6 +306,36 @@ button {
   padding: 0.5rem 0.75rem;
 }
 
+.raking-game {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.raking-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.3rem;
+}
+
+.raking-cell {
+  aspect-ratio: 1;
+  min-height: 0;
+  padding: 0;
+  background: var(--color-surface-raised);
+}
+
+.raking-cell-stone {
+  background: var(--color-text-muted);
+  color: var(--color-surface);
+}
+
+.raking-cell-raked {
+  background: var(--color-accent);
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
+}
+
 .poem-preview {
   font-style: italic;
   font-size: 0.9rem;

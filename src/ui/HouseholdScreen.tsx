@@ -6,6 +6,7 @@ import { getTokimekiTier } from '../content/tokimekiTiers';
 import { computeRestGain, computeTrainGain, seasonOfMonth, TRAIN_COMPOSURE_COST } from '../engine/household';
 import { STAFF_ROLES, type AttributeKey } from '../engine/types';
 import { IkebanaGame } from '../minigames/ikebana/IkebanaGame';
+import { RakingGame } from '../minigames/raking/RakingGame';
 import { useGameStore } from '../state/gameStore';
 
 const ATTRIBUTE_LABELS: Record<AttributeKey, string> = {
@@ -41,8 +42,10 @@ export function HouseholdScreen() {
   const buyRobe = useGameStore((s) => s.buyRobe);
   const equipRobe = useGameStore((s) => s.equipRobe);
   const practiceIkebana = useGameStore((s) => s.practiceIkebana);
+  const practiceRaking = useGameStore((s) => s.practiceRaking);
 
   const [showIkebana, setShowIkebana] = useState(false);
+  const [showRaking, setShowRaking] = useState(false);
 
   const tier = getTokimekiTier(tokimeki);
   const currentSeason = seasonOfMonth(month);
@@ -101,6 +104,9 @@ export function HouseholdScreen() {
           <button className="btn" disabled={!canArrange} onClick={() => setShowIkebana(true)}>
             Arrange Ikebana
           </button>
+          <button className="btn" disabled={!canArrange} onClick={() => setShowRaking(true)}>
+            Rake the Garden
+          </button>
         </div>
         <p style={{ color: 'var(--color-text-muted)', fontSize: '0.8rem' }}>
           Training costs {TRAIN_COMPOSURE_COST} Composure.
@@ -112,6 +118,16 @@ export function HouseholdScreen() {
             onSubmit={(result) => {
               practiceIkebana(result.tasteDelta);
               setShowIkebana(false);
+            }}
+          />
+        )}
+        {showRaking && (
+          <RakingGame
+            gardenerUpgrade={staff.gardener}
+            onCancel={() => setShowRaking(false)}
+            onSubmit={(composureGain) => {
+              practiceRaking(composureGain);
+              setShowRaking(false);
             }}
           />
         )}
