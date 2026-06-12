@@ -13,26 +13,22 @@ import { m7Tanabata } from './m7Tanabata';
 import { m8Tsukimi } from './m8Tsukimi';
 import { m11Gosechi } from './m11Gosechi';
 import { oldNameDebt } from './oldNameDebt';
-import {
-  romanceCaptainCritical,
-  romanceClimberCritical,
-  romanceSoleHeirCritical,
-  romanceWidowCritical,
-} from './romanceCriticalStubs';
+import { romanceCaptainCritical } from './romanceCaptainCritical';
+import { romanceCaptainIntro } from './romanceCaptainIntro';
+import { romanceClimberCritical } from './romanceClimberCritical';
+import { romanceClimberIntro } from './romanceClimberIntro';
 import { romanceDevoteeCritical } from './romanceDevoteeCritical';
 import { romanceDevoteeIntro } from './romanceDevoteeIntro';
-import {
-  romanceCaptainIntro,
-  romanceClimberIntro,
-  romanceSoleHeirIntro,
-  romanceWidowIntro,
-} from './romanceIntroStubs';
 import { romanceMerchantCritical } from './romanceMerchantCritical';
 import { romanceMerchantIntro } from './romanceMerchantIntro';
 import { romanceRiverbankCritical } from './romanceRiverbankCritical';
 import { romanceRiverbankIntro } from './romanceRiverbankIntro';
 import { romanceSecondPrinceCritical } from './romanceSecondPrinceCritical';
 import { romanceSecondPrinceIntro } from './romanceSecondPrinceIntro';
+import { romanceSoleHeirCritical } from './romanceSoleHeirCritical';
+import { romanceSoleHeirIntro } from './romanceSoleHeirIntro';
+import { romanceWidowCritical } from './romanceWidowCritical';
+import { romanceWidowIntro } from './romanceWidowIntro';
 
 export const SCENES: Record<string, Scene> = {
   [m1NewYear.id]: m1NewYear,

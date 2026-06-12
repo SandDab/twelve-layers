@@ -2,6 +2,88 @@
 
 ## Current accepted milestone
 
+**M4b (chunk 2) — Climber, Widow, Sole Heir, Captain routes + the last four
+marriage buffs**, accepted (GAME_DESIGN.md §6/§13/§14). This chunk completes
+M4b: all eight love-interest routes are now real content, and all eight
+marriage buffs are wired into the engine.
+
+**Part A — engine** (`src/engine/marriage.ts`, new): a shared
+`getMarriedBuff(save, kind)` lookup plus `applyMarriageAttrBonuses`, used to
+wire the four remaining `PassiveModifier` kinds:
+
+- `tokimekiMult` (Climber, x1.25): `effects.ts`'s `resource`/`tokimeki`
+  branch multiplies positive deltas by the married LI's `tokimekiMult`
+  (rounded); negative deltas (penalties, fumbles) are untouched.
+- `attrBonus`-on-marry (Sole Heir, Taste +5): `effects.ts`'s `romance` case
+  pipes the post-marriage save through `applyMarriageAttrBonuses` when
+  `effect.marry` is true — a one-shot add, no reversal (marriage is
+  permanent).
+- `kasaneProtection` (Sole Heir): `household.ts`'s `applyWardrobeEffects`
+  skips the off-season penalty (and its gossip) entirely when married to
+  the Sole Heir.
+- `rippleIntercept` (Widow, 1/season) and `envyWeaken` (Captain, x0.5): both
+  in `ripples.ts`'s `resolveDueGossip`. `rippleIntercept` drops the first
+  net-negative due gossip entry per season (a per-season flag,
+  `rippleIntercept_used_y{year}_s{season}`, caps it at one); `envyWeaken`
+  halves the magnitude of negative faction-reputation deltas, mirroring the
+  existing `factionRepMult` branch for positive ones.
+
+All four covered by new unit tests in `effects.test.ts`, `household.test.ts`,
+and `ripples.test.ts`.
+
+**Part B — content**, four new routes (same intro/critical pattern as
+chunk 1):
+
+- **The Social Climber** (`romance_climber_intro`/`romance_climber_critical`,
+  critical at stage 3, "Names for the New Appointments"): a lady-in-waiting
+  maneuvering for a household appointment. Agreeing to stand together
+  publicly marries her (`stage 4, closed: true, marry: true`), activating
+  `tokimekiMult` x1.25; lending your name without acknowledgment closes the
+  route with `tied_your_name_to_a_climber` gossip (rivalHouses +1, 1-month
+  delay); declining closes with no gossip.
+- **The Young Widow** (`romance_widow_intro`/`romance_widow_critical`,
+  critical at stage 4, "What the Screen Conceals"): an evening visit that
+  runs late. Staying marries her (`stage 5, closed: true, marry: true`),
+  activating `rippleIntercept` (1/season); staying but visibly posting
+  attendants outside closes the route with `lingered_with_the_widow` gossip
+  (rivalHouses +1, 1-month delay); leaving quietly closes with no gossip.
+- **The Sole Heir** (`romance_sole_heir_intro`/`romance_sole_heir_critical`,
+  critical at stage 2 — "first poem", "An Answer Before the Season Turns"):
+  her household presses for an early match. Sending your own answer back
+  marries her (`stage 3, closed: true, marry: true`), activating Taste +5
+  (`attrBonus`) and `kasaneProtection`; letting your elders handle the reply
+  while spreading word of the offer closes the route with
+  `let_it_be_known_an_heiress_looked_your_way` gossip (rivalHouses +1,
+  1-month delay); declining gently closes with no gossip.
+- **The Captain** (`romance_captain_intro`/`romance_captain_critical`,
+  critical at stage 3, "The Disturbance on the Avenue"): a late-night
+  scuffle outside the gate, cleared by the palace guard. Thanking him
+  plainly in front of the household marries him (`stage 4, closed: true,
+  marry: true`), activating `envyWeaken` x0.5; a formal commendation closes
+  the route with `made_a_spectacle_of_the_captains_rescue` gossip
+  (rivalHouses +1, 1-month delay); a quiet word of thanks closes with no
+  gossip.
+- `src/content/scenes/romanceIntroStubs.ts`/`romanceCriticalStubs.ts`:
+  deleted (all eight stub exports now replaced by real content); `index.ts`
+  imports each scene directly and registers all eight intro + eight critical
+  scene IDs.
+
+Verified via `tsc -b`, `eslint`, `vitest` (170/170), `npm run build`, and a
+debug-panel playtest at 390x844 (temporary Playwright dependency, removed
+after use): for each of the four new routes, queued its intro then its
+critical scene as ripples via the debug panel, played both through to the
+marriage choice, and confirmed `save.married` was set to the expected love
+interest each time. For the Sole Heir, also confirmed the Taste attribute
+jumped from 20 to 25 (the `attrBonus` +5) immediately on marriage. The other
+three buffs (`tokimekiMult`, `rippleIntercept`, `envyWeaken`) are exercised
+against the same production `applyEffects`/`resolveDueGossip`/
+`applyWardrobeEffects` functions by the Part A unit tests.
+
+Per GAME_DESIGN.md §14, **M4b is now fully complete**: all eight routes are
+completable and all eight marriage buffs verify.
+
+## Previously accepted milestones
+
 **M4b (chunk 1) — Devotee + Northern Merchant routes**, accepted
 (GAME_DESIGN.md §6/§13/§14). Content-only, against the frozen M4a engine:
 
@@ -44,8 +126,6 @@ and took the marriage path (`romance.merchant` -> `stage 3, closed: true`,
 the next month-end (the +8 stipend). The `factionRepMult` clergy x1.5
 multiplier was confirmed via a temporary unit test against
 `resolveDueGossip` with `save.married = 'devotee'`.
-
-## Previously accepted milestones
 
 **M4a — Romance engine + route content**, accepted (GAME_DESIGN.md §6/§13/§14).
 This session shipped the remaining M4a scope on top of the prior session's
@@ -112,20 +192,12 @@ M0, M1, M1.5, and M2 are also accepted.
 
 ## What's next
 
-- **M4b (chunk 2)**: route content for the remaining four love interests
-  (`climber`, `widow`, `sole_heir`, `captain`) — each currently has
-  TODO-stub intro and critical-choice scenes
-  (`romanceIntroStubs.ts`/`romanceCriticalStubs.ts`), registered and
-  content-lint-validated. Unlike chunk 1 (Devotee/Merchant), each of these
-  routes' marriage buffs needs a *new* engine mechanic wired before its
-  content can be authored: Climber's `tokimekiMult`, Widow's
-  `rippleIntercept`, Sole Heir's `attrBonus`-on-marry + `kasaneProtection`,
-  and Captain's `envyWeaken` are all currently unread by any engine code.
-  M4b is "done" per GAME_DESIGN.md §14 once all eight routes are completable
-  and all eight marriage buffs verify via debug.
-- Note: `src/minigames/raking/RakingGame.tsx` (M5's mini game) is also
-  already built and wired into HouseholdScreen, ahead of order — same
-  "leave in place, verify later" treatment as months 7/8/11 below.
+- **M5**, per GAME_DESIGN.md §14's build order. Months 7 (Tanabata), 8
+  (Tsukimi), and 11 (Gosechi) were already authored ahead of order and need
+  re-verification against v0.6 (theme-tag coverage, ripple delays, writing
+  register, content-lint) — see the section below. `src/minigames/raking/
+  RakingGame.tsx` is also already built and wired into HouseholdScreen,
+  ahead of order, and needs the same re-verification treatment.
 - Month 3's anchor event (Cherry-Blossom Banquet & Utaawase) has no
   `sceneId` yet — it's the first piece of M3/M4a content.
 
