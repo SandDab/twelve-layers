@@ -16,19 +16,19 @@ import { oldNameDebt } from './oldNameDebt';
 import {
   romanceCaptainCritical,
   romanceClimberCritical,
-  romanceDevoteeCritical,
-  romanceMerchantCritical,
   romanceSoleHeirCritical,
   romanceWidowCritical,
 } from './romanceCriticalStubs';
+import { romanceDevoteeCritical } from './romanceDevoteeCritical';
+import { romanceDevoteeIntro } from './romanceDevoteeIntro';
 import {
   romanceCaptainIntro,
   romanceClimberIntro,
-  romanceDevoteeIntro,
-  romanceMerchantIntro,
   romanceSoleHeirIntro,
   romanceWidowIntro,
 } from './romanceIntroStubs';
+import { romanceMerchantCritical } from './romanceMerchantCritical';
+import { romanceMerchantIntro } from './romanceMerchantIntro';
 import { romanceRiverbankCritical } from './romanceRiverbankCritical';
 import { romanceRiverbankIntro } from './romanceRiverbankIntro';
 import { romanceSecondPrinceCritical } from './romanceSecondPrinceCritical';

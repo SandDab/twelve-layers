@@ -31,8 +31,3 @@ export const romanceClimberCritical = stub(
 export const romanceWidowCritical = stub(LOVE_INTERESTS.widow.criticalChoice.sceneId, 'The Young Widow');
 export const romanceSoleHeirCritical = stub(LOVE_INTERESTS.sole_heir.criticalChoice.sceneId, 'The Sole Heir');
 export const romanceCaptainCritical = stub(LOVE_INTERESTS.captain.criticalChoice.sceneId, 'The Captain');
-export const romanceDevoteeCritical = stub(LOVE_INTERESTS.devotee.criticalChoice.sceneId, 'The Devotee');
-export const romanceMerchantCritical = stub(
-  LOVE_INTERESTS.merchant.criticalChoice.sceneId,
-  'The Northern Merchant',
-);

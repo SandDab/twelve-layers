@@ -28,5 +28,3 @@ export const romanceClimberIntro = stub(LOVE_INTERESTS.climber.introScene.sceneI
 export const romanceWidowIntro = stub(LOVE_INTERESTS.widow.introScene.sceneId, 'The Young Widow');
 export const romanceSoleHeirIntro = stub(LOVE_INTERESTS.sole_heir.introScene.sceneId, 'The Sole Heir');
 export const romanceCaptainIntro = stub(LOVE_INTERESTS.captain.introScene.sceneId, 'The Captain');
-export const romanceDevoteeIntro = stub(LOVE_INTERESTS.devotee.introScene.sceneId, 'The Devotee');
-export const romanceMerchantIntro = stub(LOVE_INTERESTS.merchant.introScene.sceneId, 'The Northern Merchant');
