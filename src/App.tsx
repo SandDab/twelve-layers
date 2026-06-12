@@ -6,9 +6,10 @@ import { CalendarStrip } from './ui/CalendarStrip';
 import { ClassPicker } from './ui/ClassPicker';
 import { HouseholdScreen } from './ui/HouseholdScreen';
 import { EventScreen } from './ui/EventScreen';
+import { RomanceScreen } from './ui/RomanceScreen';
 import { DebugPanel } from './ui/DebugPanel';
 
-type Screen = 'household' | 'event';
+type Screen = 'household' | 'event' | 'romance';
 
 function App() {
   const year = useGameStore((s) => s.year);
@@ -53,9 +54,18 @@ function App() {
               >
                 Event
               </button>
+              <button
+                className="btn"
+                aria-current={screen === 'romance'}
+                onClick={() => setScreen('romance')}
+              >
+                Romance
+              </button>
             </nav>
 
-            {screen === 'household' ? <HouseholdScreen /> : <EventScreen month={month} />}
+            {screen === 'household' && <HouseholdScreen />}
+            {screen === 'event' && <EventScreen month={month} />}
+            {screen === 'romance' && <RomanceScreen />}
           </>
         )}
 

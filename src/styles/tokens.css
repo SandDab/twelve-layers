@@ -306,6 +306,15 @@ button {
   padding: 0.5rem 0.75rem;
 }
 
+.poem-preview {
+  font-style: italic;
+  font-size: 0.9rem;
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-surface-raised);
+  border-radius: 0.5rem;
+}
+
 .debug-panel {
   border: 1px dashed var(--color-text-muted);
   border-radius: 0.75rem;

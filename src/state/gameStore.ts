@@ -11,11 +11,14 @@ import {
 } from '../engine/household';
 import { applyKanzashiAttrBonuses, checkKanzashiAward } from '../engine/kanzashi';
 import { applyClass } from '../engine/newGame';
+import type { PoemScoreResult, PoemSelection } from '../engine/poems';
+import { canSendPoem, sendPoem as sendPoemEngine } from '../engine/romance';
 import { consumeRipple } from '../engine/ripples';
 import { clearSave, loadSave, writeSave } from '../engine/save';
 import {
   createInitialSave,
   type AttributeKey,
+  type CandidateId,
   type ClassId,
   type Effect,
   type RippleEntry,
@@ -46,6 +49,7 @@ export interface GameState extends Save {
   equipRobe: (robeId: string | null) => void;
   equipKanzashi: (kanzashiId: string | null) => void;
   chooseClass: (classId: ClassId) => void;
+  sendPoem: (candidateId: CandidateId, selection: PoemSelection) => PoemScoreResult | null;
   resetSave: () => void;
 }
 
@@ -71,6 +75,7 @@ const SAVE_FIELDS = [
   'kanzashiEquipped',
   'kanzashiAssignments',
   'kanzashiSeed',
+  'romance',
   'debug',
 ] as const;
 
@@ -82,7 +87,7 @@ export function extractSave(state: GameState): Save {
   return save as unknown as Save;
 }
 
-export const useGameStore = create<GameState>((set) => ({
+export const useGameStore = create<GameState>((set, get) => ({
   ...loadSave(),
 
   tickMonth: () =>
@@ -326,6 +331,15 @@ export const useGameStore = create<GameState>((set) => ({
       writeSave(next);
       return next;
     }),
+
+  sendPoem: (candidateId, selection) => {
+    const save = extractSave(get());
+    if (!canSendPoem(save, candidateId)) return null;
+    const { save: next, result } = sendPoemEngine(save, candidateId, selection);
+    writeSave(next);
+    set(next);
+    return result;
+  },
 
   resetSave: () =>
     set(() => {
