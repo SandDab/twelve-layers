@@ -8,6 +8,7 @@ export function DebugPanel() {
   const year = useGameStore((s) => s.year);
   const month = useGameStore((s) => s.month);
   const classId = useGameStore((s) => s.classId);
+  const pcGender = useGameStore((s) => s.pcGender);
   const attributes = useGameStore((s) => s.attributes);
   const tokimekiHistory = useGameStore((s) => s.tokimekiHistory);
   const rippleQueue = useGameStore((s) => s.rippleQueue);
@@ -28,6 +29,11 @@ export function DebugPanel() {
       <div className="debug-row">
         <label>Class</label>
         <span>{classId ?? '(none yet)'}</span>
+      </div>
+
+      <div className="debug-row">
+        <label>Gender</label>
+        <span>{pcGender ?? '(none yet)'}</span>
       </div>
 
       <div className="debug-row">

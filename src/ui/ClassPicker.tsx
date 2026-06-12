@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { CLASSES, CLASS_IDS } from '../content/classes';
 import { useGameStore } from '../state/gameStore';
+import type { PcGender } from '../engine/types';
 
 const ATTR_LABELS = {
   charisma: 'Cha',
@@ -10,6 +12,7 @@ const ATTR_LABELS = {
 
 export function ClassPicker() {
   const chooseClass = useGameStore((s) => s.chooseClass);
+  const [gender, setGender] = useState<PcGender>('female');
 
   return (
     <section className="card">
@@ -18,6 +21,31 @@ export function ClassPicker() {
         Your family&rsquo;s standing shapes how the year begins, and what it owes. This choice is
         permanent.
       </p>
+
+      <div className="card" role="radiogroup" aria-label="Choose your gender">
+        <h3 style={{ margin: '0 0 0.5rem' }}>You are&hellip;</h3>
+        <p style={{ margin: '0 0 0.5rem', color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>
+          Either is courted, gossiped about, and promoted identically. This choice is permanent.
+        </p>
+        <div className="stat-grid">
+          <button
+            type="button"
+            className={`btn${gender === 'female' ? ' btn-accent' : ''}`}
+            aria-pressed={gender === 'female'}
+            onClick={() => setGender('female')}
+          >
+            A daughter
+          </button>
+          <button
+            type="button"
+            className={`btn${gender === 'male' ? ' btn-accent' : ''}`}
+            aria-pressed={gender === 'male'}
+            onClick={() => setGender('male')}
+          >
+            A son
+          </button>
+        </div>
+      </div>
 
       {CLASS_IDS.map((id) => {
         const def = CLASSES[id];
@@ -44,7 +72,11 @@ export function ClassPicker() {
               <strong>Liability:</strong> {def.liabilitySummary}
             </p>
 
-            <button className="btn btn-accent" style={{ width: '100%' }} onClick={() => chooseClass(id)}>
+            <button
+              className="btn btn-accent"
+              style={{ width: '100%' }}
+              onClick={() => chooseClass(id, gender)}
+            >
               Choose {def.name}
             </button>
           </div>

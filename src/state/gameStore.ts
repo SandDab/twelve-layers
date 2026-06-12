@@ -21,6 +21,7 @@ import {
   type CandidateId,
   type ClassId,
   type Effect,
+  type PcGender,
   type RippleEntry,
   type Save,
   type StaffRole,
@@ -49,7 +50,7 @@ export interface GameState extends Save {
   buyRobe: (robeId: string) => void;
   equipRobe: (robeId: string | null) => void;
   equipKanzashi: (kanzashiId: string | null) => void;
-  chooseClass: (classId: ClassId) => void;
+  chooseClass: (classId: ClassId, pcGender: PcGender) => void;
   sendPoem: (candidateId: CandidateId, selection: PoemSelection) => PoemScoreResult | null;
   resetSave: () => void;
 }
@@ -57,6 +58,7 @@ export interface GameState extends Save {
 const SAVE_FIELDS = [
   'schemaVersion',
   'classId',
+  'pcGender',
   'year',
   'month',
   'tokimeki',
@@ -336,10 +338,10 @@ export const useGameStore = create<GameState>((set, get) => ({
       return next;
     }),
 
-  chooseClass: (classId) =>
+  chooseClass: (classId, pcGender) =>
     set((state) => {
       if (state.classId !== null) return state;
-      const next = applyClass(extractSave(state), classId);
+      const next = { ...applyClass(extractSave(state), classId), pcGender };
       writeSave(next);
       return next;
     }),
