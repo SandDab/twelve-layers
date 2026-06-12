@@ -14,6 +14,7 @@ type SceneRunnerProps = {
 export function SceneRunner({ scene, onComplete }: SceneRunnerProps) {
   const attributes = useGameStore((s) => s.attributes);
   const classId = useGameStore((s) => s.classId);
+  const factionReputation = useGameStore((s) => s.factionReputation);
   const month = useGameStore((s) => s.month);
   const progress = useGameStore((s) => s.sceneProgress[scene.id]);
   const setSceneNode = useGameStore((s) => s.setSceneNode);
@@ -76,6 +77,14 @@ export function SceneRunner({ scene, onComplete }: SceneRunnerProps) {
         <div className="choice-fan">
           {node.choices
             .filter((choice) => !choice.ifClass || choice.ifClass === classId)
+            .filter((choice) => {
+              const rep = choice.ifFactionRep;
+              if (!rep) return true;
+              const value = factionReputation[rep.faction];
+              if (rep.min !== undefined && value < rep.min) return false;
+              if (rep.max !== undefined && value > rep.max) return false;
+              return true;
+            })
             .map((choice, i) => {
               const passed = choice.check ? resolveCheck(choice.check, attributes) : true;
               return (

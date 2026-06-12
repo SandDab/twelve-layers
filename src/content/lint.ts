@@ -2,11 +2,13 @@ import type { ClassDef } from './classes';
 import type { KanzashiDef, KanzashiId } from './kanzashi';
 import { getRobe } from './robes';
 import type { Scene } from '../engine/scene';
-import type { AttributeKey, ClassId, ThemeTag } from '../engine/types';
+import type { AttributeKey, ClassId, FactionId, ThemeTag } from '../engine/types';
 
 const VALID_ATTRIBUTES: readonly AttributeKey[] = ['rank', 'charisma', 'allure', 'rhetoric', 'taste'];
 
 const VALID_CLASS_IDS: readonly ClassId[] = ['governors_heir', 'judges_child', 'old_name', 'salon_child'];
+
+const VALID_FACTION_IDS: readonly FactionId[] = ['regent', 'rivalHouses', 'imperial', 'clergy'];
 
 const VALID_THEME_TAGS: readonly ThemeTag[] = ['principle', 'restraint', 'alignment', 'grace'];
 
@@ -69,6 +71,12 @@ export function lintScenes(scenes: Record<string, Scene>): string[] {
         if (choice.ifClass && !VALID_CLASS_IDS.includes(choice.ifClass)) {
           errors.push(
             `${scene.id}/${node.id}: choice "${choice.text}" has unknown ifClass "${choice.ifClass}"`,
+          );
+        }
+
+        if (choice.ifFactionRep && !VALID_FACTION_IDS.includes(choice.ifFactionRep.faction)) {
+          errors.push(
+            `${scene.id}/${node.id}: choice "${choice.text}" has unknown ifFactionRep faction "${choice.ifFactionRep.faction}"`,
           );
         }
 

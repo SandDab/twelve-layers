@@ -1,12 +1,17 @@
-import type { Check, ClassId, Effect, ThemeTag } from './types';
+import type { Check, ClassId, Effect, FactionId, ThemeTag } from './types';
 
 export type NodeId = string;
+
+/** Gate a choice on the player's current standing with a faction (GAME_DESIGN.md §9: "faction reputation surfacing"). */
+export type FactionRepCondition = { faction: FactionId; min?: number; max?: number };
 
 export type Choice = {
   text: string;
   check?: Check;
   // Only offered to players of this class (FNV-style `[Background: X]` options).
   ifClass?: ClassId;
+  // Only offered if the player's reputation with this faction falls in range.
+  ifFactionRep?: FactionRepCondition;
   // Kanzashi theme tags this choice satisfies (GAME_DESIGN.md §8).
   themeTags?: ThemeTag[];
   effects: Effect[];
