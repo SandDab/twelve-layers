@@ -26,6 +26,18 @@ describe('applyEffects', () => {
     expect(save.tokimeki).toBe(0);
   });
 
+  it("multiplies positive tokimeki gains by 1.25 while married to the Social Climber", () => {
+    const base = { ...createInitialSave(), married: 'climber' };
+    const save = applyEffects([{ kind: 'resource', res: 'tokimeki', delta: 4 }], base);
+    expect(save.tokimeki).toBe(5); // 4 * 1.25 = 5
+
+    const negative = applyEffects([{ kind: 'resource', res: 'tokimeki', delta: -4 }], { ...base, tokimeki: 10 });
+    expect(negative.tokimeki).toBe(6); // negative deltas unaffected
+
+    const unmarried = applyEffects([{ kind: 'resource', res: 'tokimeki', delta: 4 }], createInitialSave());
+    expect(unmarried.tokimeki).toBe(4); // no buff without the marriage
+  });
+
   it('applies a favor effect, accumulating per-npc', () => {
     let save = applyEffects([{ kind: 'favor', npc: 'sharpBrush', delta: 1 }], createInitialSave());
     save = applyEffects([{ kind: 'favor', npc: 'sharpBrush', delta: 2 }], save);
@@ -107,6 +119,19 @@ describe('applyEffects', () => {
     );
     expect(save.married).toBe('riverbank');
     expect(save.romance.riverbank).toEqual({ stage: 6, interest: 10, closed: true, introFired: true });
+  });
+
+  it("applies the Sole Heir's +5 Taste attrBonus once, on marriage", () => {
+    const base = {
+      ...createInitialSave(),
+      romance: { sole_heir: { stage: 2, interest: 8, closed: false, introFired: true } },
+    };
+    const save = applyEffects(
+      [{ kind: 'romance', loveInterestId: 'sole_heir', stage: 3, closed: true, marry: true }],
+      base,
+    );
+    expect(save.married).toBe('sole_heir');
+    expect(save.attributes.taste).toBe(base.attributes.taste + 5);
   });
 
   it('applies a courtshipSignal effect to open courtships per their acclaim/deference profile', () => {

@@ -1,6 +1,7 @@
 import { computeComposureCap } from '../content/classes';
 import { LOVE_INTERESTS } from '../content/loveInterests';
 import { applyCourtshipSignal } from './introDirector';
+import { applyMarriageAttrBonuses, getMarriedBuff } from './marriage';
 import type { Effect, GossipEntry, RippleEntry, RomanceState, Save } from './types';
 
 /** Add `delta` months to a year/month pair, rolling over at 12. */
@@ -22,7 +23,12 @@ function applyEffect(effect: Effect, save: Save): Save {
 
     case 'resource':
       if (effect.res === 'tokimeki') {
-        return { ...save, tokimeki: Math.max(0, save.tokimeki + effect.delta) };
+        let delta = effect.delta;
+        if (delta > 0) {
+          const mult = getMarriedBuff(save, 'tokimekiMult')?.mult ?? 1;
+          delta = Math.round(delta * mult);
+        }
+        return { ...save, tokimeki: Math.max(0, save.tokimeki + delta) };
       }
       if (effect.res === 'composure') {
         const cap = computeComposureCap(save.classId, save.kanzashiEquipped);
@@ -78,7 +84,7 @@ function applyEffect(effect: Effect, save: Save): Save {
         closed: false,
         introFired: false,
       };
-      return {
+      const next: Save = {
         ...save,
         romance: {
           ...save.romance,
@@ -91,6 +97,7 @@ function applyEffect(effect: Effect, save: Save): Save {
         },
         married: effect.marry ? effect.loveInterestId : save.married,
       };
+      return effect.marry ? applyMarriageAttrBonuses(next, effect.loveInterestId) : next;
     }
 
     case 'courtshipSignal':

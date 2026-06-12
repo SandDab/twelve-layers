@@ -94,4 +94,66 @@ describe('gossip queue', () => {
 
     expect(resolveDueGossip(save).factionReputation.rivalHouses).toBe(3);
   });
+
+  it('halves negative faction-reputation gossip while married to the Captain', () => {
+    const save = {
+      ...createInitialSave(),
+      year: 1,
+      month: 6,
+      married: 'captain',
+      pendingGossip: [
+        { triggerYear: 1, triggerMonth: 6, tag: 'fumbled_a_verse', factionDeltas: { rivalHouses: -2 } },
+      ],
+    };
+
+    expect(resolveDueGossip(save).factionReputation.rivalHouses).toBe(-1);
+  });
+
+  it('positive gossip is unaffected by envyWeaken', () => {
+    const save = {
+      ...createInitialSave(),
+      year: 1,
+      month: 6,
+      married: 'captain',
+      pendingGossip: [
+        { triggerYear: 1, triggerMonth: 6, tag: 'praised_old_houses', factionDeltas: { rivalHouses: 2 } },
+      ],
+    };
+
+    expect(resolveDueGossip(save).factionReputation.rivalHouses).toBe(2);
+  });
+
+  it('intercepts one net-negative gossip entry per season while married to the Young Widow', () => {
+    const save = {
+      ...createInitialSave(),
+      year: 1,
+      month: 6, // season 2
+      married: 'widow',
+      pendingGossip: [
+        { triggerYear: 1, triggerMonth: 6, tag: 'fumbled_a_verse', factionDeltas: { rivalHouses: -2 } },
+        { triggerYear: 1, triggerMonth: 6, tag: 'praised_old_houses', factionDeltas: { rivalHouses: 2 } },
+      ],
+    };
+
+    const next = resolveDueGossip(save);
+    // The negative entry is intercepted (dropped without applying); the positive one resolves normally.
+    expect(next.factionReputation.rivalHouses).toBe(2);
+    expect(next.flags['rippleIntercept_used_y1_s2']).toBe(true);
+    expect(next.pendingGossip).toEqual([]);
+  });
+
+  it("doesn't intercept a second net-negative gossip entry in the same season", () => {
+    const save = {
+      ...createInitialSave(),
+      year: 1,
+      month: 5,
+      married: 'widow',
+      flags: { rippleIntercept_used_y1_s2: true },
+      pendingGossip: [
+        { triggerYear: 1, triggerMonth: 5, tag: 'fumbled_a_verse', factionDeltas: { rivalHouses: -2 } },
+      ],
+    };
+
+    expect(resolveDueGossip(save).factionReputation.rivalHouses).toBe(-2);
+  });
 });

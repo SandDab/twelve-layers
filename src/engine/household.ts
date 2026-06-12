@@ -8,6 +8,7 @@ import { tickCalendar } from './calendar';
 import { addMonths, applyEffects } from './effects';
 import { runIntroDirector } from './introDirector';
 import { applyJimoku } from './jimoku';
+import { getMarriedBuff } from './marriage';
 import { resolveDueGossip } from './ripples';
 import { BASE_FREE_ACTIONS, type AttributeKey, type ClassId, type LoveInterestId, type Save, type StaffRole } from './types';
 
@@ -70,7 +71,9 @@ export function computeTrainGain(attr: AttributeKey, staff: Record<StaffRole, bo
 /**
  * Apply the equipped robe's effect for the month that's ending: a bonus
  * if its season matches the current month, a penalty plus delayed gossip
- * if it doesn't (GAME_DESIGN.md §8 — wardrobe teaches the calendar).
+ * if it doesn't (GAME_DESIGN.md §8 — wardrobe teaches the calendar). The
+ * Sole Heir's `kasaneProtection` marriage buff suppresses the off-season
+ * penalty entirely — her household keeps the PC correctly dressed.
  */
 export function applyWardrobeEffects(save: Save): Save {
   if (!save.wardrobe.equipped) return save;
@@ -87,6 +90,8 @@ export function applyWardrobeEffects(save: Save): Save {
       save,
     );
   }
+
+  if (getMarriedBuff(save, 'kasaneProtection')) return save;
 
   return applyEffects(
     [

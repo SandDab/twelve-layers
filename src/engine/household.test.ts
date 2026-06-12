@@ -119,6 +119,16 @@ describe('applyWardrobeEffects', () => {
     expect(next.pendingGossip).toHaveLength(1);
     expect(next.pendingGossip[0]).toMatchObject({ tag: 'wore_offseason_robe' });
   });
+
+  it("suppresses the off-season penalty entirely while married to the Sole Heir", () => {
+    const save = {
+      ...createInitialSave(),
+      month: 2, // spring — momiji_gasane is season 3 (autumn)
+      wardrobe: { owned: ['momiji_gasane'], equipped: 'momiji_gasane' },
+      married: 'sole_heir',
+    };
+    expect(applyWardrobeEffects(save)).toEqual(save);
+  });
 });
 
 describe('applyTokimekiEnvyTrigger', () => {
