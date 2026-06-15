@@ -6,6 +6,7 @@ import { CalendarStrip } from './ui/CalendarStrip';
 import { ClassPicker } from './ui/ClassPicker';
 import { HouseholdScreen } from './ui/HouseholdScreen';
 import { EventScreen } from './ui/EventScreen';
+import { NewYearScreen } from './ui/NewYearScreen';
 import { DebugPanel } from './ui/DebugPanel';
 
 type Screen = 'household' | 'event';
@@ -14,6 +15,7 @@ function App() {
   const year = useGameStore((s) => s.year);
   const month = useGameStore((s) => s.month);
   const classId = useGameStore((s) => s.classId);
+  const jimokuResult = useGameStore((s) => s.jimokuResult);
   const debug = useGameStore((s) => s.debug);
   const setDebug = useGameStore((s) => s.setDebug);
   const [screen, setScreen] = useState<Screen>('household');
@@ -34,6 +36,10 @@ function App() {
       <main className="app-interactive">
         {classId === null ? (
           <ClassPicker />
+        ) : jimokuResult ? (
+          <div key={`newyear-${jimokuResult.year}`} className="screen-fade">
+            <NewYearScreen />
+          </div>
         ) : (
           <>
             <CalendarStrip month={month} />
@@ -55,8 +61,10 @@ function App() {
               </button>
             </nav>
 
-            {screen === 'household' && <HouseholdScreen />}
-            {screen === 'event' && <EventScreen month={month} />}
+            <div key={`${screen}-${year}-${month}`} className="screen-fade">
+              {screen === 'household' && <HouseholdScreen />}
+              {screen === 'event' && <EventScreen month={month} />}
+            </div>
           </>
         )}
 

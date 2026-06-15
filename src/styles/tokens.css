@@ -195,6 +195,7 @@ button {
   background: var(--color-surface);
   color: var(--color-text-muted);
   font-size: 0.85rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .calendar-strip .month-chip.active {
@@ -202,6 +203,23 @@ button {
   color: var(--color-accent-text);
   border-color: var(--color-accent);
   font-weight: 600;
+}
+
+/* Screen transitions: a quiet fade-and-rise on screen swap, applied via
+   a per-screen key so React remounts and replays the animation. */
+@keyframes screen-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.screen-fade {
+  animation: screen-fade-in 0.3s ease;
 }
 
 .stat-grid {

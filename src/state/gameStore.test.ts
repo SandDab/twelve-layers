@@ -146,3 +146,26 @@ describe('M3 acceptance', () => {
     expect(after.actionsRemaining).toBe(actionsBefore - 1);
   });
 });
+
+describe('M6 acceptance', () => {
+  it('resolves a jimoku ending at the month-12 close and clears it on acknowledgement', () => {
+    useGameStore.getState().chooseClass('old_name', 'female');
+    useGameStore.getState().setMonthYear(12, 1);
+    useGameStore.getState().grantTokimeki(15); // >= 10 -> 'quiet_advancement'
+
+    useGameStore.getState().tickMonth();
+
+    let state = useGameStore.getState();
+    expect(state.jimokuResult).toEqual(
+      expect.objectContaining({ year: 1, endingId: 'quiet_advancement' }),
+    );
+    expect(state.year).toBe(2);
+    expect(state.month).toBe(1);
+    expect(state.tokimeki).toBe(0);
+
+    useGameStore.getState().acknowledgeJimoku();
+
+    state = useGameStore.getState();
+    expect(state.jimokuResult).toBeNull();
+  });
+});

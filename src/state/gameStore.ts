@@ -23,6 +23,7 @@ import {
   type ClassId,
   type Effect,
   type PcGender,
+  type PoemDisplayMode,
   type RippleEntry,
   type Save,
   type StaffRole,
@@ -55,6 +56,8 @@ export interface GameState extends Save {
   equipKanzashi: (kanzashiId: string | null) => void;
   chooseClass: (classId: ClassId, pcGender: PcGender) => void;
   resetSave: () => void;
+  acknowledgeJimoku: () => void;
+  setPoemDisplayMode: (mode: PoemDisplayMode) => void;
 }
 
 const SAVE_FIELDS = [
@@ -377,5 +380,19 @@ export const useGameStore = create<GameState>((set) => ({
     set(() => {
       clearSave();
       return createInitialSave();
+    }),
+
+  acknowledgeJimoku: () =>
+    set((state) => {
+      const next: Save = { ...extractSave(state), jimokuResult: null };
+      writeSave(next);
+      return next;
+    }),
+
+  setPoemDisplayMode: (mode) =>
+    set((state) => {
+      const next: Save = { ...extractSave(state), poemDisplayMode: mode };
+      writeSave(next);
+      return next;
     }),
 }));

@@ -2,6 +2,115 @@
 
 ## Current accepted milestone
 
+**M6 — Finale + polish**, accepted (GAME_DESIGN.md §14). M6's done-when
+criterion ("a full year is completable with at least 3 meaningfully
+different endings reachable, and year 2 starts cleanly with carried-over
+state") is met:
+
+- **New Year / jimoku recap** (`src/ui/NewYearScreen.tsx`, new): the
+  `computeEnding`/`computeRankGain`/`applyJimoku` logic in
+  `src/engine/jimoku.ts` and the six ending slates in
+  `src/content/endings.ts` were built ahead of order in prior sessions, but
+  `save.jimokuResult` was computed and persisted without ever being shown.
+  `NewYearScreen` now renders the closed year's ending title/body and rank
+  gain (or "No change in standing this year"), with a "Begin Year N" button
+  wired to a new `acknowledgeJimoku` store action (clears `jimokuResult`,
+  persists). `App.tsx` gates the normal household/event nav behind
+  `jimokuResult !== null`, so the recap is seen before the new year can be
+  played.
+- **Poem display modes** (GAME_DESIGN.md §7/§14): `PoemComposer.tsx` gained
+  a cycling mode button (Romaji -> Gloss -> Immersion -> Romaji), backed by
+  `save.poemDisplayMode` and a new `setPoemDisplayMode` store action. Romaji
+  (default) shows only `fragment.romaji`; Gloss shows `jp`/`romaji`/`en`
+  stacked; Immersion shows `jp`/`kana` only. All four language fields were
+  already authored on every `PoemFragment` (constraint #7), so this was
+  UI-only work.
+- **PWA manifest**: `public/manifest.webmanifest` (name "Twelve Layers",
+  standalone display, portrait orientation, kasane-token background/theme
+  colors, `favicon.svg` as icon) plus a `<link rel="manifest">` and
+  `<meta name="theme-color">` in `index.html`.
+- **Screen transitions**: a CSS-only fade-and-rise (`@keyframes
+  screen-fade-in`, `.screen-fade` in `src/styles/tokens.css`) applied via
+  per-screen `key`-based remounts in `App.tsx` (household/event/new-year
+  swaps), plus a color transition on the active calendar-strip month chip.
+
+Verified via `tsc -b`, `eslint`, `vitest` (172/172, including a new
+`PoemComposer.test.tsx` covering the display-mode cycle and a new "M6
+acceptance" case in `gameStore.test.ts` covering jimoku resolution +
+acknowledgement), `npm run build`, and a debug-panel playtest at 390x844
+(temporary Playwright dependency, removed after use): drove three separate
+fresh saves to month 12 with Tokimeki 0 / 10 / 30, confirming `NewYearScreen`
+shows "The Unremarked Year" / "Quiet Advancement" / "Toast of the Capital"
+respectively with non-empty recap prose, and that "Begin Year 2" clears
+`jimokuResult`, increments `year` to 2, resets `month` to 1, and resets
+Tokimeki to 0. The `behind_the_curtain` and `overextended`/`estranged`
+endings are covered by `jimoku.test.ts`'s unit tests rather than re-played
+live.
+
+**Known gap for v0.1**: the audio pass (koto/shō ambience, per GAME_DESIGN.md
+§14) is deferred — no audio assets exist in the repo and none can be
+generated in this environment. Picking up audio is future work, not part of
+M6's acceptance.
+
+Per GAME_DESIGN.md §14, **M6 is now fully complete**.
+
+## Previously accepted milestones
+
+**M5 — Raking + gossip surfacing**, accepted (GAME_DESIGN.md §14). M5's
+done-when criterion ("the Aoi Matsuri carriage dispute, month 4, plays with
+all options viable and all options costly") is met by
+`src/content/scenes/m4AoiCarriage.ts`, already built ahead of order: four
+theme-tagged choices (`alignment`/`restraint`/`principle`/`grace`) plus two
+`[Background]` options (`old_name`, `governors_heir`), all six routed to
+distinct, costly outcomes (gossip + faction-rep hits, Tokimeki/Composure/Koku
+changes).
+
+This session verified the rest of M5's scope, all of which was also built
+ahead of order in a prior session:
+
+- **Raking mini-game** (`src/engine/raking.ts` + tests,
+  `src/minigames/raking/RakingGame.tsx`): wired into HouseholdScreen as the
+  "Rake the Garden" free action, dispatching to
+  `gameStore.practiceRaking(composureGain)`. Confirmed via debug-panel
+  playtest: scoring (21/70), a "+10 Composure gain" readout, and "Free
+  Actions" decrementing by one.
+- **Faction-reputation surfacing** (`ifFactionRep` choice gating,
+  `src/engine/scene.ts` + `src/ui/SceneRunner.tsx`): confirmed via month 7
+  Tanabata (`m7_tanabata_01`) — the rumor-surfacing choice ("your name has
+  been coming up rather often among the old-name households...") is visible
+  and resolves correctly when `factionReputation.rivalHouses <= -5` (true
+  from the start for The Governor's Heir, whose class liability sets
+  `rivalHouses` to -10).
+- **Months 7/8/11 + `envyRival` theme-tag coverage and ripple delays**:
+  played `m7_tanabata_01` (ifFactionRep branch), `m8_tsukimi_01` (ikebana ->
+  `02a`/`02b` -> moongazing beat `m8_tsukimi_03` -> principle/taste branch),
+  `envy_rival_01` (grace branch, via the Tokimeki-tier envy ripple), and
+  `m11_gosechi_01` (principle/taste branch -> end node -> Close) end to end.
+
+**Bug found and fixed during this playtest**: `envy_rival_01`'s outcome
+prose was completely unreachable. Its only delivery mechanism is a ripple
+(via `applyTokimekiEnvyTrigger`), and `SceneRunner.tsx`'s `goto` was calling
+`completeScene`/`onComplete` (which consumes the ripple) the instant a
+choice's target was itself an end node — before `EventScreen` ever rendered
+that node's body. This affected any ripple-delivered scene whose choices
+`goto` directly to an end node, not just `envyRival`.
+
+- **Fix (engine, `src/ui/SceneRunner.tsx`)**: `goto` now always just calls
+  `setSceneNode`; scene completion happens only via the (previously dead,
+  now reachable) "Close" button rendered when `atEnd && !progress?.completed`.
+- **Fix (content, `src/content/scenes/envyRival.ts`)**: both choices now
+  route through new intermediate nodes (`envy_rival_grace`/
+  `envy_rival_ignore`, retaining the original outcome prose, each with
+  `next: 'envy_rival_end'`) into a new shared `envy_rival_end` end node.
+
+Verified via `tsc -b`, `eslint`, `vitest` (170/170), and a debug-panel
+playtest at 390x844 (temporary Playwright dependency, removed after use)
+covering all of the above.
+
+Per GAME_DESIGN.md §14, **M5 is now fully complete**.
+
+## Previously accepted milestones
+
 **M4b (chunk 2) — Climber, Widow, Sole Heir, Captain routes + the last four
 marriage buffs**, accepted (GAME_DESIGN.md §6/§13/§14). This chunk completes
 M4b: all eight love-interest routes are now real content, and all eight
@@ -192,26 +301,19 @@ M0, M1, M1.5, and M2 are also accepted.
 
 ## What's next
 
-- **M5**, per GAME_DESIGN.md §14's build order. Months 7 (Tanabata), 8
-  (Tsukimi), and 11 (Gosechi) were already authored ahead of order and need
-  re-verification against v0.6 (theme-tag coverage, ripple delays, writing
-  register, content-lint) — see the section below. `src/minigames/raking/
-  RakingGame.tsx` is also already built and wired into HouseholdScreen,
-  ahead of order, and needs the same re-verification treatment.
+Per GAME_DESIGN.md §14/§15, v0.1 is content-complete now that M6 is
+accepted — M0 through M6 (including M1.5) are all done. Remaining work is
+backlog/future-session items, not a numbered milestone:
+
+- Audio pass (koto/shō ambience, GAME_DESIGN.md §14) — deferred, no assets
+  exist (see "Known gap for v0.1" above).
+- Year-2+ content: the engine is multi-year from day one (constraint #6),
+  but v0.1 ships year-1 content only. Authoring year-2 events/scenes is
+  future work.
 - Month 3's anchor event (Cherry-Blossom Banquet & Utaawase) has no
   `sceneId` yet — it's the first piece of M3/M4a content.
-
-## Content already authored, pending verification at proper milestone order
-
-Months 7 (Tanabata), 8 (Tsukimi), and 11 (Gosechi), plus the `envyRival`
-ripple scene, were authored ahead of milestone order in a prior session
-(~573 lines). Per REALIGNMENT.md, **this content is being left in place**
-rather than backlogged: it was checked during Phase 4 and found to have no
-code dependency on the romance-v1 system being triaged below, so leaving
-it in place does not block the romance triage. It still needs to be
-re-verified against v0.6 (theme-tag coverage, ripple delays, writing
-register, content-lint) when M5/M6 are reached in proper milestone order.
-Do not build on top of it or treat it as "done" until then.
+- The post-v0.1 backlog items noted under `src/content/backlog/` and "Known
+  loose end" below.
 
 ## `src/content/backlog/`
 
@@ -269,3 +371,15 @@ reference to the old "Sharp Brush" candidate concept. When the v0.6 roster
 lands at M4a, decide whether to repoint these at one of the eight new
 love-interest ids or repurpose `sharpBrush` as a non-romance NPC (a
 celebrated court poet/lady-in-waiting), and update both references then.
+
+`src/content/lint.ts`'s `lintNoEmDashes` (checks scene `body`/choice `text`
+for em/en dashes) has unit tests in `lint.test.ts` against synthetic data,
+but is never run against the real `SCENES` registry. Em dashes are used
+pervasively and deliberately throughout already-accepted content (M1's
+`m1NewYear.ts`, all eight romance routes, `classes.ts`, `kanzashi.ts`,
+`tokimekiTiers.ts`, `envyRival.ts`, `m4NewYearEcho.ts`) as the established
+prose style. Wiring it into the real lint suite now would fail against ~20
+accepted files and contradict that established (and good) style. It's
+effectively dead code — likely an early style idea superseded by actual
+practice. Future decision: either delete `lintNoEmDashes` + its tests, or
+repurpose it for something narrower.
