@@ -27,7 +27,7 @@ export const envyRival: Scene = {
             { kind: 'favor', npc: 'rivalHouseLady', delta: 1 },
             { kind: 'resource', res: 'composure', delta: -5 },
           ],
-          goto: 'envy_rival_end_grace',
+          goto: 'envy_rival_grace',
         },
         {
           text: 'Ignore it. Let them watch — you have nothing to hide.',
@@ -39,25 +39,36 @@ export const envyRival: Scene = {
               delayMonths: 2,
             },
           ],
-          goto: 'envy_rival_end_ignore',
+          goto: 'envy_rival_ignore',
         },
       ],
     },
 
-    envy_rival_end_grace: {
-      id: 'envy_rival_end_grace',
+    envy_rival_grace: {
+      id: 'envy_rival_grace',
       speaker: 'Narrator',
       body:
         'The gift is accepted with a correctly measured note of thanks. Nothing is ' +
         'settled, but nothing is provoked either — for now.',
+      next: 'envy_rival_end',
     },
 
-    envy_rival_end_ignore: {
-      id: 'envy_rival_end_ignore',
+    envy_rival_ignore: {
+      id: 'envy_rival_ignore',
       speaker: 'Narrator',
       body:
         'You let the matter pass without comment. Whether that reads as confidence ' +
         'or contempt is, you suspect, not entirely up to you.',
+      next: 'envy_rival_end',
+    },
+
+    envy_rival_end: {
+      id: 'envy_rival_end',
+      speaker: 'Narrator',
+      body:
+        'Either way, the lady files you away for future reference, the way court ' +
+        'ladies file everything away. What she does with it is a question for ' +
+        'another season.',
     },
   },
 };

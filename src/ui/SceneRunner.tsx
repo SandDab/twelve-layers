@@ -43,14 +43,7 @@ export function SceneRunner({ scene, onComplete }: SceneRunnerProps) {
     if (themeTags && themeTags.length > 0) {
       checkKanzashiAward(themeTags);
     }
-    const target = getSceneNode(scene, nodeId);
-    if (isSceneEnd(target)) {
-      setSceneNode(scene.id, nodeId);
-      completeScene(scene.id);
-      onComplete?.();
-    } else {
-      setSceneNode(scene.id, nodeId);
-    }
+    setSceneNode(scene.id, nodeId);
   }
 
   function submitIkebana(result: IkebanaScoreResult) {
